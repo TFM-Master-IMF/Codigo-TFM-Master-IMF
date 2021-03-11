@@ -20,4 +20,4 @@ def lectura_inicial_datos():
 
     # Lectura del csv con los datos iniciales
     return pd.read_csv(data_path, header=0, parse_dates=[0],
-                       date_parser=dateparse)
+                       date_parser=dateparse, index_col=[0])
