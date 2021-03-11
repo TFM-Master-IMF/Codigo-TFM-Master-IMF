@@ -16,7 +16,7 @@ def lectura_inicial_datos():
     dirname = os.getcwd()
 
     # Concatenación del directorio actual con el subdirectorio deseado
-    data_path = os.path.join(dirname, r'Base de datos Bitcoin\bitstampUSD.csv')
+    data_path = os.path.join(dirname, r'../Base de datos Bitcoin/bitstampUSD.csv')
 
     # Lectura del csv con los datos iniciales
     return pd.read_csv(data_path, header=0, parse_dates=[0],
