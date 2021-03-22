@@ -20,7 +20,7 @@ def visual_stationarity_test(timeseries, title, my_window, inicial_range=('2010-
     trace_rolmean = go.Scatter(
         x=rolmean.index,
         y=rolmean.astype(float),
-        name="Rolling mean",
+        name="Media",
         opacity=1)
 
     trace_Close = go.Scatter(
@@ -32,7 +32,7 @@ def visual_stationarity_test(timeseries, title, my_window, inicial_range=('2010-
     trace_rolstd = go.Scatter(
         x=rolstd.index,
         y=rolstd.astype(float),
-        name="Rolling std (x10)",
+        name="Desviación estándar",
         opacity=0.8)
 
     data = [trace_Close, trace_rolmean, trace_rolstd]
