@@ -2,3 +2,7 @@
 __pycache__
 env
 .idea
+**/.ipynb_checkpoints
+**/__pycache__
+**/env
+*/.idea
