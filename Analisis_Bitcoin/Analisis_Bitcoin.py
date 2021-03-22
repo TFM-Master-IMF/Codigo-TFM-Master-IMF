@@ -10,32 +10,52 @@ from plotly.offline import iplot
 from statsmodels.tsa.stattools import adfuller
 
 
-def visual_stationarity_test(timeseries, title, my_window, inicial_range=('2010-04-01', '2021-03-19')):
+def visual_stationarity_test(title,
+                             inicial_range=('2010-04-01', '2021-03-19'), original_timeseries=None,
+                             timeseries_without_tendency=None, my_window=None):
     """Función que permite comprobar la estacionalidad de una serie temporal mediante la elaboración de un gráfico
     interactivo."""
+    trace_original_timeseries, trace_timeseries_without_tendency, trace_rolmean, trace_rolstd = None, None, None,None
 
-    rolmean = pd.Series(timeseries).rolling(window=my_window).mean()
-    rolstd = pd.Series(timeseries).rolling(window=my_window).std()
+    if original_timeseries is not None:
+        trace_original_timeseries = go.Scatter(
+            x=original_timeseries.index,
+            y=original_timeseries.astype(float),
+            name=title,
+            opacity=1)
 
-    trace_rolmean = go.Scatter(
-        x=rolmean.index,
-        y=rolmean.astype(float),
-        name="Media",
-        opacity=1)
+    if timeseries_without_tendency is not None:
+        trace_timeseries_without_tendency = go.Scatter(
+            x=timeseries_without_tendency.index,
+            y=timeseries_without_tendency.astype(float),
+            name=title,
+            opacity=1)
 
-    trace_Close = go.Scatter(
-        x=timeseries.index,
-        y=timeseries.astype(float),
-        name=title,
-        opacity=1)
+    if my_window is not None:
+        rolmean = pd.Series(original_timeseries).rolling(window=my_window).mean()
+        rolstd = pd.Series(original_timeseries).rolling(window=my_window).std()
 
-    trace_rolstd = go.Scatter(
-        x=rolstd.index,
-        y=rolstd.astype(float),
-        name="Desviación estándar",
-        opacity=0.8)
+        trace_rolmean = go.Scatter(
+            x=rolmean.index,
+            y=rolmean.astype(float),
+            name="Media",
+            opacity=1)
 
-    data = [trace_Close, trace_rolmean, trace_rolstd]
+        trace_rolstd = go.Scatter(
+            x=rolstd.index,
+            y=rolstd.astype(float),
+            name="Desviación estándar",
+            opacity=0.8)
+
+    if original_timeseries is not None:
+        trace_original_timeseries = go.Scatter(
+            x=original_timeseries.index,
+            y=original_timeseries.astype(float),
+            name='Precio original de cierre del Bitcoin',
+            opacity=1)
+
+    traces = [trace_original_timeseries, trace_timeseries_without_tendency, trace_rolmean, trace_rolstd]
+    data = [elem for elem in traces if elem is not None]
 
     layout = dict(
         title='Test visual de la estacionalidad de la variable \'close\'',
