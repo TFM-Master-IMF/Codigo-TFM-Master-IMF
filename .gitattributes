@@ -1,1 +1,2 @@
 Codigo_TFM_Master_IMF.ipynb filter=lfs diff=lfs merge=lfs -text
+Lectura_datos/Base[[:space:]]de[[:space:]]datos[[:space:]]Bitcoin/Bitcoinhourly.csv filter=lfs diff=lfs merge=lfs -text
