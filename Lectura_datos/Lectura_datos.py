@@ -21,16 +21,3 @@ def lectura_inicial_datos():
     # Lectura del csv con los datos iniciales
     return pd.read_csv(data_path, header=0, parse_dates=[0],
                        date_parser=dateparse, index_col=[0])
-
-
-def lectura_inicial_datos_api():
-    """Función que permite realizar la lectura inicial de la base de datos de Bitcoin obtenidos desde una api"""
-
-    # Captura del directorio actual
-    dirname = os.getcwd()
-
-    # Concatenación del directorio actual con el subdirectorio deseado
-    data_path = os.path.join(dirname, r'./Lectura_datos/Base de datos Bitcoin/Bitcoinhourly.csv')
-
-    # Lectura del csv con los datos iniciales
-    return pd.read_csv(data_path, header=0, parse_dates=[0], index_col=[0])
