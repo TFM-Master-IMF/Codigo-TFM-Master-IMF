@@ -1,0 +1,3 @@
+https://bitinfocharts.com/comparison/bitcoin-transactions.html,Transactions
+https://bitinfocharts.com/comparison/bitcoin-hashrate.html,Hashrate
+https://bitinfocharts.com/comparison/bitcoin-tweets.html,Tweets
