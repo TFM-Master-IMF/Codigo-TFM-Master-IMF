@@ -1,8 +1,10 @@
 import pandas as pd
 import requests
 import pandas_datareader as pdr
-from bs4 import BeautifulSoup
 import datetime
+from bs4 import BeautifulSoup
+from gdeltdoc import GdeltDoc, Filters
+from pytrends.request import TrendReq
 
 
 def fill_missing_dates(df):
@@ -39,7 +41,7 @@ def extract_data_from_yahoo_finance(description, symbol):
     end = datetime.datetime(2020, 12, 31)
     if symbol == 'BTC-USD':
         df = pdr.get_data_yahoo(symbol, start=start, end=end).loc[:, ['Volume', 'Adj Close']]
-        df.rename(columns={'Adj Close': description, 'Volume': 'Bitcoin_Volumen'}, inplace=True)
+        df.rename(columns={'Adj Close': description, 'Volume': 'Bitcoin_Volume'}, inplace=True)
         df = fill_missing_dates(df)
         return df
     else:
@@ -49,22 +51,63 @@ def extract_data_from_yahoo_finance(description, symbol):
         return df
 
 
+def extract_data_from_gdelt(word, s_date, e_date):
+    f = Filters(
+        keyword=word,
+        start_date=s_date,
+        end_date=e_date
+    )
+    gd = GdeltDoc()
+    df = gd.timeline_search("timelinevol", f)
+    df = df.set_index('datetime')
+    df.index = df.index.date
+    df.index.name = 'Date'
+    df.rename(columns={'Volume Intensity': 'Gdelt_Volume_Intensity'}, inplace=True)
+    df = fill_missing_dates(df)
+    return df
+
+
+def extract_data_from_google_trends(keywords, dates):
+    pytrend = TrendReq()
+    pytrend.build_payload(
+        kw_list=[keywords],
+        cat=0,
+        geo='',
+        timeframe=dates
+    )
+    df = pytrend.interest_over_time()
+    if not df.empty:
+        df = df.drop(labels=['isPartial'], axis='columns')
+        df.index.name = 'Date'
+        df.rename(columns={'Bitcoin': 'Google_Trends'}, inplace=True)
+        df = fill_missing_dates(df)
+    return df
+
+
 def main():
-    frames = []
+    # Getting data related to Bitcoin from Google Trends and Gdelt
+    frames = [extract_data_from_google_trends('Bitcoin', '2011-01-01 2020-12-31'),
+              extract_data_from_gdelt('Bitcoin', '2017-01-01', '2020-12-31')]
+
+    # extract_data_from_gdelt('Bitcoin', '2017-01-01', '2020-12-31')
+
+    # Getting data from interactive graphs using multiple URLs
     with open('URLs.txt', 'r') as f:
         elements = [line.rstrip('\n').split(',') for line in f]
     for url, content in elements:
         frames.append(extract_data_from_interactive_chart(url, content))
 
+    # Getting data from Yahoo Finance
     with open('Yahoo_Finance.txt', 'r') as f:
         elements = [line.rstrip('\n').split(',') for line in f]
     for description, symbol in elements:
         frames.append(extract_data_from_yahoo_finance(description, symbol))
 
     database = pd.concat(frames, axis=1, join='inner')
-    # database.to_csv('D:\Documentos\Master Big Data & Business Analytics\TFM\Códigos de prueba\Extracción y lectura de datos\Datos.csv', index_label='Date')
+    print(database)
+    # database.to_csv('D:\Documentos\Master Big Data & Business Analytics\TFM\Códigos de prueba\Extracción y lectura
+    # de datos\Datos.csv', index_label='Date')
 
 
 if __name__ == "__main__":
     main()
-
