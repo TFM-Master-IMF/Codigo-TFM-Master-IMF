@@ -1,10 +1,12 @@
 import pandas as pd
+import numpy as np
 import requests
 import pandas_datareader as pdr
 import datetime
 from bs4 import BeautifulSoup
 from gdeltdoc import GdeltDoc, Filters
 from pytrends.request import TrendReq
+import time
 
 
 def fill_missing_dates(df):
@@ -28,11 +30,15 @@ def extract_data_from_interactive_chart(url, content):
         date = data.split('new Date("')[i + 1].split('"')[0]
         value = data.split('"),')[i + 1].split(']')[0]
         dates.append(date)
-        values.append(value)
+        if value != 'null':
+            values.append(float(value))
+        else:
+            values.append(None)
 
     df = pd.DataFrame(list(zip(dates, values)), columns=["Date", content])
     df['Date'] = pd.to_datetime(df['Date'])
     df.set_index(['Date'], inplace=True)
+    df = fill_missing_dates(df)
     return df
 
 
@@ -84,6 +90,16 @@ def extract_data_from_google_trends(keywords, dates):
     return df
 
 
+def make_data_stationary(dataset):
+    frames = []
+    for col in dataset.columns:
+        series_log = np.log(dataset[col])
+        series_log_dif = (series_log - series_log.shift(1))*100
+        series_log_dif.dropna(inplace=True)
+        frames.append(series_log_dif)
+    return pd.concat(frames, axis=1, join='inner')
+
+
 def main():
     # Getting data related to Bitcoin from Google Trends and Gdelt
     frames = [extract_data_from_google_trends('Bitcoin', '2011-01-01 2020-12-31'),
@@ -101,9 +117,9 @@ def main():
     for description, symbol in elements:
         frames.append(extract_data_from_yahoo_finance(description, symbol))
 
-    database = pd.concat(frames, axis=1, join='inner')
+    database = make_data_stationary(pd.concat(frames, axis=1, join='inner'))
     print(database)
-    database.to_csv('D:\Documentos\Master Big Data & Business Analytics\TFM\Datos.csv', index_label='Date')
+    # database.to_csv('D:\Documentos\Master Big Data & Business Analytics\TFM\Datos.csv', index_label='Date')
 
 
 if __name__ == "__main__":
