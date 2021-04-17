@@ -89,8 +89,6 @@ def main():
     frames = [extract_data_from_google_trends('Bitcoin', '2011-01-01 2020-12-31'),
               extract_data_from_gdelt('Bitcoin', '2017-01-01', '2020-12-31')]
 
-    # extract_data_from_gdelt('Bitcoin', '2017-01-01', '2020-12-31')
-
     # Getting data from interactive graphs using multiple URLs
     with open('URLs.txt', 'r') as f:
         elements = [line.rstrip('\n').split(',') for line in f]
@@ -99,14 +97,13 @@ def main():
 
     # Getting data from Yahoo Finance
     with open('Yahoo_Finance.txt', 'r') as f:
-        elements = [line.rstrip('\n').split(',') for line in f]
+        elements = [line.strip().rstrip('\n').split(',') for line in f]
     for description, symbol in elements:
         frames.append(extract_data_from_yahoo_finance(description, symbol))
 
     database = pd.concat(frames, axis=1, join='inner')
     print(database)
-    # database.to_csv('D:\Documentos\Master Big Data & Business Analytics\TFM\Códigos de prueba\Extracción y lectura
-    # de datos\Datos.csv', index_label='Date')
+    database.to_csv('D:\Documentos\Master Big Data & Business Analytics\TFM\Datos.csv', index_label='Date')
 
 
 if __name__ == "__main__":
