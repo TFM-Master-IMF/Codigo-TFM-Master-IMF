@@ -1,12 +1,10 @@
 import pandas as pd
 import numpy as np
 import requests
-import pandas_datareader as pdr
-import datetime
+from YahooFinanceHistory import YahooFinanceHistory
 from bs4 import BeautifulSoup
 from gdeltdoc import GdeltDoc, Filters
 from pytrends.request import TrendReq
-import time
 
 
 def fill_missing_dates(df):
@@ -42,16 +40,18 @@ def extract_data_from_interactive_chart(url, content):
     return df
 
 
-def extract_data_from_yahoo_finance(description, symbol):
-    start = datetime.datetime(2011, 1, 1)
-    end = datetime.datetime(2020, 12, 31)
+def extract_data_from_yahoo_finance(description, symbol, days_back):
     if symbol == 'BTC-USD':
-        df = pdr.get_data_yahoo(symbol, start=start, end=end).loc[:, ['Volume', 'Adj Close']]
+        df = YahooFinanceHistory(symbol, days_back).get_quote().loc[:, ['Date', 'Volume', 'Adj Close']]
+        df['Date'] = pd.to_datetime(df['Date'])
+        df.set_index(['Date'], inplace=True)
         df.rename(columns={'Adj Close': description, 'Volume': 'Bitcoin_Volume'}, inplace=True)
         df = fill_missing_dates(df)
         return df
     else:
-        df = pdr.get_data_yahoo(symbol, start=start, end=end).loc[:, 'Adj Close'].to_frame()
+        df = YahooFinanceHistory(symbol, days_back).get_quote().loc[:, ['Date', 'Adj Close']]
+        df['Date'] = pd.to_datetime(df['Date'])
+        df.set_index(['Date'], inplace=True)
         df.rename(columns={'Adj Close': description}, inplace=True)
         df = fill_missing_dates(df)
         return df
@@ -102,8 +102,8 @@ def make_data_stationary(dataset):
 
 def main():
     # Getting data related to Bitcoin from Google Trends and Gdelt
-    frames = [extract_data_from_google_trends('Bitcoin', '2011-01-01 2020-12-31'),
-              extract_data_from_gdelt('Bitcoin', '2017-01-01', '2020-12-31')]
+    frames = [extract_data_from_google_trends('Bitcoin', '2017-01-01 2021-01-01'),
+              extract_data_from_gdelt('Bitcoin', '2017-01-01', '2021-01-01')]
 
     # Getting data from interactive graphs using multiple URLs
     with open('URLs.txt', 'r') as f:
@@ -115,11 +115,13 @@ def main():
     with open('Yahoo_Finance.txt', 'r') as f:
         elements = [line.strip().rstrip('\n').split(',') for line in f]
     for description, symbol in elements:
-        frames.append(extract_data_from_yahoo_finance(description, symbol))
+        frames.append(extract_data_from_yahoo_finance(description, symbol, 365*5))
 
-    database = make_data_stationary(pd.concat(frames, axis=1, join='inner'))
-    print(database)
+    # Merging the distinct dataframes and making the data stationary
+    database = make_data_stationary(pd.concat(frames))
+    database = database[('2018-01-01' <= database.index) & (database.index < '2020-01-01')]
     # database.to_csv('D:\Documentos\Master Big Data & Business Analytics\TFM\Datos.csv', index_label='Date')
+    print(database)
 
 
 if __name__ == "__main__":
