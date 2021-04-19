@@ -118,7 +118,8 @@ def main():
         frames.append(extract_data_from_yahoo_finance(description, symbol, 365*5))
 
     # Merging the distinct dataframes and making the data stationary
-    database = make_data_stationary(pd.concat(frames))
+    # database = make_data_stationary(pd.concat(frames))
+    database = pd.concat(frames, axis=1, join='inner')
     database = database[('2018-01-01' <= database.index) & (database.index < '2020-01-01')]
     # database.to_csv('D:\Documentos\Master Big Data & Business Analytics\TFM\Datos.csv', index_label='Date')
     print(database)
