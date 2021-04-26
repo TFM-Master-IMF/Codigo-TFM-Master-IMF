@@ -5,6 +5,7 @@ from YahooFinanceHistory import YahooFinanceHistory
 from bs4 import BeautifulSoup
 from gdeltdoc import GdeltDoc, Filters
 from pytrends.request import TrendReq
+from os.path import dirname, abspath
 
 
 def fill_missing_dates(df):
@@ -121,7 +122,9 @@ def main():
     # database = make_data_stationary(pd.concat(frames))
     database = pd.concat(frames, axis=1, join='inner')
     database = database[('2018-01-01' <= database.index) & (database.index < '2020-01-01')]
-    # database.to_csv('D:\Documentos\Master Big Data & Business Analytics\TFM\Datos.csv', index_label='Date')
+    database.to_csv(dirname(dirname(abspath(__file__))) + '\Ficheros Outputs\Datos.csv',
+                    index_label='Date')
+    print(frames)
     print(database)
 
 

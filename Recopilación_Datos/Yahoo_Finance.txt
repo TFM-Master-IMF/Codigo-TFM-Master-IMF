@@ -28,8 +28,6 @@ IPC MEXICO,^MXX
 ESTX 50 PR.EUR,^STOXX50E
 Alphabet Inc.,GOOG
 DAX PERFORMANCE-INDEX,^GDAXI
-CMC Crypto 200 Index by Solacti,^CMC200
-FTSE 100,^FTSE
 Intel_Corporation,INTC
 National_Bankshares_Inc,NKSH
 Ethereum_USD,ETH-USD
