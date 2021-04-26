@@ -19,3 +19,32 @@ Marathon_Digital_Holdings,MARA
 HIVE_Blockchain_Technologies,HVBTF
 Limelight_Networks,LLNW
 Bitcoin_USD,BTC-USD
+Facebook,FB
+Cardano USD,ADA-USD
+XRP USD,XRP-USD
+Nikkei 225,^N225
+NASDAQ Composite,^IXIC
+IPC MEXICO,^MXX
+ESTX 50 PR.EUR,^STOXX50E
+Alphabet Inc.,GOOG
+DAX PERFORMANCE-INDEX,^GDAXI
+CMC Crypto 200 Index by Solacti,^CMC200
+FTSE 100,^FTSE
+Intel_Corporation,INTC
+National_Bankshares_Inc,NKSH
+Ethereum_USD,ETH-USD
+Litecoin_USD,LTC-USD
+MicroStrategy_Incorporated,MSTR
+IBM,IBM
+Dash_USD,DASH-USD
+Siacoin_USD,SC-USD
+Stellar_USD,XLM-USD
+NEM_USD,XEM-USD
+Monero_USD,XMR-USD
+FTSE_100,^FTSE
+SSE_Composite_Index,000001.SS
+W&T_Offshore_Inc,WTI
+Wall_Street_Capital_Inc,WSSE
+XRP_USD,XRP-USD
+BitcoinCash_USD,BCH-USD
+Zcash_USD,ZEC-USD
