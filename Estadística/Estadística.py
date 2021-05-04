@@ -2,10 +2,11 @@ import numpy as np
 import pandas as pd
 import warnings
 import matplotlib.pyplot as plt
-import seaborn as sns
+# import seaborn as sns
 from statsmodels.tsa.stattools import adfuller
 from statsmodels.tsa.stattools import kpss
 from os.path import dirname, abspath
+from statsmodels.tsa.stattools import grangercausalitytests
 from statsmodels.tsa.stattools import acf
 from statsmodels.tsa.stattools import pacf
 from statsmodels.graphics.tsaplots import plot_acf
@@ -125,6 +126,23 @@ def check_correlations(dataset):
     plt.show()"""
 
 
+def grangers_causation_matrix(data, variables, max_lag, test='ssr_chi2test', verbose=False):
+    """Check Granger Causality of all possible combinations of the Time series.
+    The rows are the response variable, columns are predictors."""
+    df = pd.DataFrame(np.zeros((len(variables), len(variables))), columns=variables, index=variables)
+    for c in df.columns:
+        for r in df.index:
+            test_result = grangercausalitytests(data[[r, c]], maxlag=max_lag, verbose=False)
+            p_values = [round(test_result[i + 1][0][test][1], 4) for i in range(max_lag)]
+            if verbose:
+                print(f'Y = {r}, X = {c}, P Values = {p_values}')
+            min_p_value = np.min(p_values)
+            df.loc[r, c] = min_p_value
+    df.columns = [var + '_x' for var in variables]
+    df.index = [var + '_y' for var in variables]
+    return df
+
+
 def logarithmic_transformation(dataset):
     """Function that applies the logarithmic transformation to all the time series variables present in the dataset"""
 
@@ -147,12 +165,10 @@ def differencing_transformation(dataset, lag):
 def main():
     dataset = pd.read_csv(dirname(dirname(abspath(__file__))) + '\Ficheros Outputs\Datos.csv',
                           index_col='Date', parse_dates=['Date'])
-    check_correlations(dataset)
     dataset_log_dif, lag = make_data_stationary(dataset)
-    print(dataset_log_dif, lag)
-    # best_lags = check_autocorrelations(dataset_log)
-    d = dirname(dirname(abspath(__file__)))
-    print(d)
+    # print(dataset_log_dif, lag)
+    grangers_causality_matrix = grangers_causation_matrix(dataset_log_dif, dataset_log_dif.columns, 7)
+    print(grangers_causality_matrix.loc['Bitcoin_USD_y', :].map(lambda p_value: p_value <= 0.05))
 
 
 if __name__ == "__main__":
