@@ -118,9 +118,10 @@ def cross_correlation(dataset, target):
             cross_correlations[col] = [crosscorr(dataset[target], dataset[col], i) for i in range(-300, 301)]
             fig, ax = plt.subplots()
             ax.plot([i for i in range(-300, 301)], cross_correlations[col])
-            ax.set_title('Cross-Correlation between Bitcoin and ' + col)
+            ax.set_title('Bitcoin-' + col)
             plt.xlabel('Time lags, in number of days (n)')
             plt.ylabel('Cross-Correlation value')
+            plt.grid()
             fig.savefig(dirname(dirname(abspath(__file__)))
                         + '/Ficheros Outputs/Cross-Correlations/' + col + '.png')
 
@@ -160,7 +161,7 @@ def main():
                           index_col='Date', parse_dates=['Date'])
     dataset_log_dif, lag = make_data_stationary(dataset)
     # print(dataset_log_dif, lag)
-    cross_correlation(dataset, "Bitcoin_USD")
+    cross_correlation(dataset_log_dif, "Bitcoin_USD")
     # grangers_causality_matrix = grangers_causation_matrix(dataset_log_dif, dataset_log_dif.columns, 7)
     # print(grangers_causality_matrix.loc['Bitcoin_USD_y', :].map(lambda p_value: p_value <= 0.05))
 
