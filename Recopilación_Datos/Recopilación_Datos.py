@@ -7,6 +7,8 @@ from gdeltdoc import GdeltDoc, Filters
 from pytrends.request import TrendReq
 from os.path import dirname, abspath
 
+import pandas_datareader as pdr
+import datetime
 
 def fill_missing_dates(df):
     df = df[~df.index.duplicated()]
@@ -15,6 +17,47 @@ def fill_missing_dates(df):
     df.fillna(method='ffill', inplace=True)
     return df
 
+def extract_data_from_fred():
+    start_fred = datetime.datetime(2018, 1, 1)
+    end_fred = datetime.datetime(2019, 12, 31)
+
+    # todos los indicadores no estan seasonalmente ajustados
+    data_from_fred = pdr.DataReader(['T10YIE',
+                                     'DGS10',
+                                     'T10Y2Y',
+                                     'TEDRATE',
+                                     'DTWEXBGS',
+                                     'VIXCLS',
+                                     'DCOILWTICO',
+                                     'DEXUSUK',
+                                     'DEXCAUS',
+                                     'USEPUINDXD',
+                                     'ICERATES1200EUR5Y',
+                                     'BAMLHYH0A0HYM2TRIV',
+                                     'BAMLCC0A0CMTRIV',
+                                     'WILL5000INDFC'],
+                                    'fred',
+                                    start_fred,
+                                    end_fred)
+    data_from_fred = data_from_fred.fillna(method='backfill')
+    data_from_fred[['TEDRATE', 'ICERATES1200EUR5Y']] = data_from_fred[['TEDRATE', 'ICERATES1200EUR5Y']].fillna(method='ffill')
+    data_from_fred = data_from_fred.rename(columns={'T10YIE': '10-Year Breakeven Inflation Rate',
+                                                    'DGS10': '10-Year Treasury Constant Maturity Rate',
+                                                    'T10Y2Y': '10-Year Treasury Constant Maturity Minus 2-Year Treasury Constant Maturity',
+                                                    'TEDRATE': 'TED Spread',
+                                                    'DTWEXBGS': 'Trade Weighted U.S. Dollar Index: Broad, Goods and Services',
+                                                    'VIXCLS': 'CBOE Volatility Index',
+                                                    'DCOILWTICO': 'Crude Oil Prices: West Texas Intermediate (WTI)',
+                                                    'DEXUSUK': 'U.S. / U.K. Foreign Exchange Rate',
+                                                    'DEXCAUS': 'Canada / U.S. Foreign Exchange Rate',
+                                                    'USEPUINDXD': 'Economic Policy Uncertainty Index for United States',
+                                                    'ICERATES1200EUR5Y': 'ICE Swap Rates, 12:00 P.M. (London Time), Based on Euros, 5 Year Tenor',
+                                                    'BAMLHYH0A0HYM2TRIV': 'ICE BofA US High Yield Index Total Return Index Value',
+                                                    'BAMLCC0A0CMTRIV': ' ICE BofA US Corporate Index Total Return Index Value',
+                                                    'WILL5000INDFC': 'Wilshire 5000 Total Market Full Cap Index'
+                                                    })
+    data_from_fred.index = data_from_fred.index.rename('Date')
+    return data_from_fred
 
 def extract_data_from_interactive_chart(url, content):
     session = requests.Session()
@@ -118,6 +161,7 @@ def main():
     for description, symbol in elements:
         frames.append(extract_data_from_yahoo_finance(description, symbol, 365*5))
 
+    frames.append(extract_data_from_fred())
     # Merging the distinct dataframes and making the data stationary
     # database = make_data_stationary(pd.concat(frames))
     database = pd.concat(frames, axis=1, join='inner')
