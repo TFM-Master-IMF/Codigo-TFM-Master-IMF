@@ -1,6 +1,7 @@
 import pandas as pd
 import numpy as np
 import requests
+import os
 from YahooFinanceHistory import YahooFinanceHistory
 from bs4 import BeautifulSoup
 from gdeltdoc import GdeltDoc, Filters
@@ -102,6 +103,12 @@ def make_data_stationary(dataset):
 
 
 def main():
+    # Creation of needed directories
+    if not os.path.exists(dirname(dirname(abspath(__file__)))
+                          + '/Ficheros Outputs'):
+        os.makedirs(dirname(dirname(abspath(__file__)))
+                    + '/Ficheros Outputs')
+
     # Getting data related to Bitcoin from Google Trends and Gdelt
     frames = [extract_data_from_google_trends('Bitcoin', '2017-01-01 2021-01-01'),
               extract_data_from_gdelt('Bitcoin', '2017-01-01', '2021-01-01')]
@@ -122,7 +129,7 @@ def main():
     # database = make_data_stationary(pd.concat(frames))
     database = pd.concat(frames, axis=1, join='inner')
     database = database[('2018-01-01' <= database.index) & (database.index < '2020-01-01')]
-    database.to_csv(dirname(dirname(abspath(__file__))) + '\Ficheros Outputs\Datos.csv',
+    database.to_csv(dirname(dirname(abspath(__file__))) + '/Ficheros Outputs/Datos.csv',
                     index_label='Date')
     print(frames)
     print(database)

@@ -2,8 +2,8 @@ South_Corea_Stock_Index,^KS11
 Shanghai_SE_Composite_Index,000001.SS
 S&P500,^GSPC
 Market_Volatility_Index,^VIX
-Euro/Dollar,EURUSD=X
-Yuan/Dolar,CNYUSD=X
+Euro_Dollar,EURUSD=X
+Yuan_Dolar,CNYUSD=X
 All_Items,CPI
 Dow_Jones_Industrial_Average,^DJI
 USD_Index,DX-Y.NYB
@@ -12,7 +12,7 @@ Brent_Oil_USD,BZ=F
 Gold,GC=F
 TESLA,TSLA
 Microsoft,MSFT
-Swiss_Franc/Dollar,CHFUSD=X
+Swiss_Franc_Dollar,CHFUSD=X
 Amazon,AMZN
 Appel,AAPL
 Marathon_Digital_Holdings,MARA
