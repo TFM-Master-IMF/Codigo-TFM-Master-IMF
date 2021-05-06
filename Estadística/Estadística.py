@@ -2,15 +2,12 @@ import numpy as np
 import pandas as pd
 import warnings
 import matplotlib.pyplot as plt
+import os
 # import seaborn as sns
 from statsmodels.tsa.stattools import adfuller
 from statsmodels.tsa.stattools import kpss
 from os.path import dirname, abspath
 from statsmodels.tsa.stattools import grangercausalitytests
-from statsmodels.tsa.stattools import acf
-from statsmodels.tsa.stattools import pacf
-from statsmodels.graphics.tsaplots import plot_acf
-from statsmodels.graphics.tsaplots import plot_pacf
 
 
 def adf_test(timeseries):
@@ -57,90 +54,20 @@ def check_stationarity(dataset, lag):
     adf_results = []
     kpss_results = []
     for col in dataset.columns:
-        stationarity_adf, adf = adf_test(dataset.loc[:, col])
-        stationarity_kpss, kpss = kpss_test(dataset.loc[:, col])
-        adf_results.append(adf)
-        kpss_results.append(kpss)
+        stationarity_adf, adf_data = adf_test(dataset.loc[:, col])
+        stationarity_kpss, kpss_data = kpss_test(dataset.loc[:, col])
+        adf_results.append(adf_data)
+        kpss_results.append(kpss_data)
         stationarity_results.append((col, stationarity_adf, stationarity_kpss))
     df_adf = pd.DataFrame(adf_results)
     df_adf.set_index('Variable', inplace=True)
     df_kpss = pd.DataFrame(kpss_results)
     df_kpss.set_index('Variable', inplace=True)
-    df_adf.to_csv(dirname(dirname(abspath(__file__))) + '\Ficheros Outputs\ADFLag'
+    df_adf.to_csv(dirname(dirname(abspath(__file__))) + '/Ficheros Outputs/ADFLag'
                   + str(lag) + '.csv')
-    df_kpss.to_csv(dirname(dirname(abspath(__file__))) + '\Ficheros Outputs\KPSSLag'
+    df_kpss.to_csv(dirname(dirname(abspath(__file__))) + '/Ficheros Outputs/KPSSLag'
                    + str(lag) + '.csv')
     return stationarity_results
-
-
-def make_data_stationary(dataset):
-    """Function that computes the logarithmic and differencing transformation of the input dataset variables until
-    the data becomes stationary."""
-
-    lag = 0
-    local_dataset = dataset.copy()
-    dataset_log = logarithmic_transformation(local_dataset)
-    dataset_log_dif = dataset_log.copy()
-    while any(False in ele for ele in check_stationarity(dataset_log_dif, lag)):
-        lag += 1
-        dataset_log_dif = differencing_transformation(dataset_log, lag)
-    return dataset_log_dif, lag
-
-
-def check_autocorrelations(dataset):
-    print('Autocorrelations of ACF test:')
-    best_lags = []
-    for col in dataset.columns:
-        with warnings.catch_warnings():
-            warnings.filterwarnings("ignore")
-            acf_abs_result = [abs(ele) for ele in list(acf(dataset[col], nlags=10))[1:]]
-            index_of_max_acf = acf_abs_result.index(max(acf_abs_result)) + 1
-            best_lags.append((col, index_of_max_acf))
-            plot_acf(dataset[col], lags=60)
-            plt.show()
-    return best_lags
-
-
-def check_correlations(dataset):
-    local_dataset = dataset.copy()
-    local_dataset_log = logarithmic_transformation(local_dataset)
-    corr_matrix = pd.DataFrame(local_dataset_log.corr(method='pearson'))
-    corr_matrix['Bitcoin_USD'].sort_values(ascending=False).to_csv(dirname(dirname(abspath(__file__)))
-                                                                   + '\Ficheros Outputs\Correlations.csv', index=True)
-    print(corr_matrix['Bitcoin_USD'].sort_values(ascending=False))
-    """fig, ax = plt.subplots()
-    sns.heatmap(
-        round(corr_matrix, 2),
-        vmin=-1, vmax=1, center=0,
-        cmap=sns.diverging_palette(20, 220, n=200),
-        square=True,
-        annot=True,
-        xticklabels=True,
-        yticklabels=True
-    )
-    ax.set_xticklabels(
-        ax.get_xticklabels(),
-        rotation=45,
-        horizontalalignment='right'
-    )
-    plt.show()"""
-
-
-def grangers_causation_matrix(data, variables, max_lag, test='ssr_chi2test', verbose=False):
-    """Check Granger Causality of all possible combinations of the Time series.
-    The rows are the response variable, columns are predictors."""
-    df = pd.DataFrame(np.zeros((len(variables), len(variables))), columns=variables, index=variables)
-    for c in df.columns:
-        for r in df.index:
-            test_result = grangercausalitytests(data[[r, c]], maxlag=max_lag, verbose=False)
-            p_values = [round(test_result[i + 1][0][test][1], 4) for i in range(max_lag)]
-            if verbose:
-                print(f'Y = {r}, X = {c}, P Values = {p_values}')
-            min_p_value = np.min(p_values)
-            df.loc[r, c] = min_p_value
-    df.columns = [var + '_x' for var in variables]
-    df.index = [var + '_y' for var in variables]
-    return df
 
 
 def logarithmic_transformation(dataset):
@@ -162,13 +89,81 @@ def differencing_transformation(dataset, lag):
     return local_dataset
 
 
+def make_data_stationary(dataset):
+    """Function that computes the logarithmic and differencing transformation of the input dataset variables until
+    the data becomes stationary."""
+
+    lag = 0
+    local_dataset = dataset.copy()
+    dataset_log = logarithmic_transformation(local_dataset)
+    dataset_log_dif = dataset_log.copy()
+    while any(False in ele for ele in check_stationarity(dataset_log_dif, lag)):
+        lag += 1
+        dataset_log_dif = differencing_transformation(dataset_log, lag)
+    return dataset_log_dif, lag
+
+
+def crosscorr(datax, datay, lag=0):
+    """ Lag-N cross correlation"""
+
+    return datax.corr(datay.shift(lag), method='pearson')
+
+
+def cross_correlation(dataset, target):
+    cross_correlations = pd.DataFrame(np.zeros((301 - (-300), len(dataset.columns) - 1)),
+                                      columns=dataset.columns[dataset.columns != target],
+                                      index=["lag_" + str(i) for i in range(-300, 301)])
+    for col in dataset.columns:
+        if col != target:
+            cross_correlations[col] = [crosscorr(dataset[target], dataset[col], i) for i in range(-300, 301)]
+            fig, ax = plt.subplots()
+            ax.plot([i for i in range(-300, 301)], cross_correlations[col])
+            ax.set_title('Bitcoin-' + col)
+            plt.xlabel('Time lags, in number of days (n)')
+            plt.ylabel('Cross-Correlation value')
+            plt.grid()
+            fig.savefig(dirname(dirname(abspath(__file__)))
+                        + '/Ficheros Outputs/Cross-Correlations/' + col + '.png')
+
+    return cross_correlations
+
+
+def grangers_causation_matrix(dataset, variables, max_lag, test='ssr_chi2test', verbose=False):
+    """Check Granger Causality of all possible combinations of the Time series.
+    The rows are the response variable, columns are predictors."""
+
+    df = pd.DataFrame(np.zeros((len(variables), len(variables))), columns=variables, index=variables)
+    for c in df.columns:
+        for r in df.index:
+            test_result = grangercausalitytests(dataset[[r, c]], maxlag=max_lag, verbose=False)
+            p_values = [round(test_result[i + 1][0][test][1], 4) for i in range(max_lag)]
+            if verbose:
+                print(f'Y = {r}, X = {c}, P Values = {p_values}')
+            min_p_value = np.min(p_values)
+            df.loc[r, c] = min_p_value
+    df.columns = [var + '_x' for var in variables]
+    df.index = [var + '_y' for var in variables]
+    return df
+
+
 def main():
-    dataset = pd.read_csv(dirname(dirname(abspath(__file__))) + '\Ficheros Outputs\Datos.csv',
+    # Creation of needed directories
+    if not os.path.exists(dirname(dirname(abspath(__file__)))
+                          + '/Ficheros Outputs'):
+        os.makedirs(dirname(dirname(abspath(__file__)))
+                    + '/Ficheros Outputs')
+    if not os.path.exists(dirname(dirname(abspath(__file__)))
+                          + '/Ficheros Outputs/Cross-Correlations'):
+        os.makedirs(dirname(dirname(abspath(__file__)))
+                    + '/Ficheros Outputs/Cross-Correlations')
+    # Reading dataframe with the required data
+    dataset = pd.read_csv(dirname(dirname(abspath(__file__))) + '/Ficheros Outputs/Datos.csv',
                           index_col='Date', parse_dates=['Date'])
     dataset_log_dif, lag = make_data_stationary(dataset)
     # print(dataset_log_dif, lag)
-    grangers_causality_matrix = grangers_causation_matrix(dataset_log_dif, dataset_log_dif.columns, 7)
-    print(grangers_causality_matrix.loc['Bitcoin_USD_y', :].map(lambda p_value: p_value <= 0.05))
+    cross_correlation(dataset_log_dif, "Bitcoin_USD")
+    # grangers_causality_matrix = grangers_causation_matrix(dataset_log_dif, dataset_log_dif.columns, 7)
+    # print(grangers_causality_matrix.loc['Bitcoin_USD_y', :].map(lambda p_value: p_value <= 0.05))
 
 
 if __name__ == "__main__":
