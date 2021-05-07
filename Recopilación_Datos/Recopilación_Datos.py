@@ -25,7 +25,6 @@ def extract_data_from_fred():
     # todos los indicadores no estan seasonalmente ajustados
     data_from_fred = pdr.DataReader(['T10YIE',
                                      'DGS10',
-                                     'T10Y2Y',
                                      'TEDRATE',
                                      'DTWEXBGS',
                                      'VIXCLS',
@@ -33,28 +32,21 @@ def extract_data_from_fred():
                                      'DEXUSUK',
                                      'DEXCAUS',
                                      'USEPUINDXD',
-                                     'ICERATES1200EUR5Y',
-                                     'BAMLHYH0A0HYM2TRIV',
-                                     'BAMLCC0A0CMTRIV',
                                      'WILL5000INDFC'],
                                     'fred',
                                     start_fred,
                                     end_fred)
     data_from_fred = data_from_fred.fillna(method='backfill')
-    data_from_fred[['TEDRATE', 'ICERATES1200EUR5Y']] = data_from_fred[['TEDRATE', 'ICERATES1200EUR5Y']].fillna(method='ffill')
+    data_from_fred[['TEDRATE']] = data_from_fred[['TEDRATE']].fillna(method='ffill')
     data_from_fred = data_from_fred.rename(columns={'T10YIE': '10-Year Breakeven Inflation Rate',
                                                     'DGS10': '10-Year Treasury Constant Maturity Rate',
-                                                    'T10Y2Y': '10-Year Treasury Constant Maturity Minus 2-Year Treasury Constant Maturity',
                                                     'TEDRATE': 'TED Spread',
                                                     'DTWEXBGS': 'Trade Weighted U.S. Dollar Index: Broad, Goods and Services',
                                                     'VIXCLS': 'CBOE Volatility Index',
                                                     'DCOILWTICO': 'Crude Oil Prices: West Texas Intermediate (WTI)',
-                                                    'DEXUSUK': 'U.S. / U.K. Foreign Exchange Rate',
-                                                    'DEXCAUS': 'Canada / U.S. Foreign Exchange Rate',
+                                                    'DEXUSUK': 'U.S. _ U.K. Foreign Exchange Rate',
+                                                    'DEXCAUS': 'Canada _ U.S. Foreign Exchange Rate',
                                                     'USEPUINDXD': 'Economic Policy Uncertainty Index for United States',
-                                                    'ICERATES1200EUR5Y': 'ICE Swap Rates, 12:00 P.M. (London Time), Based on Euros, 5 Year Tenor',
-                                                    'BAMLHYH0A0HYM2TRIV': 'ICE BofA US High Yield Index Total Return Index Value',
-                                                    'BAMLCC0A0CMTRIV': ' ICE BofA US Corporate Index Total Return Index Value',
                                                     'WILL5000INDFC': 'Wilshire 5000 Total Market Full Cap Index'
                                                     })
     data_from_fred.index = data_from_fred.index.rename('Date')

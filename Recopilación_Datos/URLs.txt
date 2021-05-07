@@ -4,7 +4,6 @@ https://bitinfocharts.com/comparison/bitcoin-tweets.html,Tweets
 https://bitinfocharts.com/comparison/bitcoin-size.html,BitcoinBlockSize
 https://bitinfocharts.com/comparison/bitcoin-mining_profitability.html,BitcoinMiningProfitability
 https://bitinfocharts.com/comparison/bitcoin-activeaddresses.html,BitcoinActiveAddresses
-https://bitinfocharts.com/comparison/bitcoin-difficulty.html,BitcoinDifficulty
 https://bitinfocharts.com/comparison/bitcoin-fee_to_reward.html,BitcoinFeeinReward
 https://bitinfocharts.com/comparison/bitcoin-confirmationtime.html,BitcoinBlockTime
 https://bitinfocharts.com/comparison/bitcoin-median_transaction_fee.html,BitcoinMedianTransactionFee

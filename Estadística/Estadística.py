@@ -16,6 +16,8 @@ def adf_test(timeseries):
     with warnings.catch_warnings():
         warnings.filterwarnings("ignore")
         adftest = adfuller(timeseries.replace([np.inf, -np.inf], np.nan).dropna(), autolag='AIC')
+
+
         resultados = {'Variable': timeseries.name, 'Estadísticas de prueba': round(adftest[0], 2),
                       'P-valor': round(adftest[1], 2), '1%': round(adftest[4]['1%'], 2),
                       '5%': round(adftest[4]['5%'], 2), '10%': round(adftest[4]['10%'], 2)}
