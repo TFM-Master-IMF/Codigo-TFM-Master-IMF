@@ -1,16 +1,16 @@
 https://bitinfocharts.com/comparison/bitcoin-transactions.html,Transactions
 https://bitinfocharts.com/comparison/bitcoin-hashrate.html,Hashrate
 https://bitinfocharts.com/comparison/bitcoin-tweets.html,Tweets
-https://bitinfocharts.com/comparison/bitcoin-size.html,BitcoinBlockSize
-https://bitinfocharts.com/comparison/bitcoin-mining_profitability.html,BitcoinMiningProfitability
-https://bitinfocharts.com/comparison/bitcoin-activeaddresses.html,BitcoinActiveAddresses
-https://bitinfocharts.com/comparison/bitcoin-fee_to_reward.html,BitcoinFeeinReward
-https://bitinfocharts.com/comparison/bitcoin-confirmationtime.html,BitcoinBlockTime
-https://bitinfocharts.com/comparison/bitcoin-median_transaction_fee.html,BitcoinMedianTransactionFee
-https://bitinfocharts.com/comparison/bitcoin-transactionfees.html,BitcoinAvgTransactionFee
-https://bitinfocharts.com/comparison/bitcoin-mediantransactionvalue.html,BitcoinMedianTransactionValue
-https://bitinfocharts.com/comparison/bitcoin-transactionvalue.html,BitcoinAvgTransactionValue
-https://bitinfocharts.com/comparison/bitcoin-sentinusd.html,BitcoinSentinUSD
-https://bitinfocharts.com/comparison/bitcoin-marketcap.html,BitcoinMarketCapitalization
-https://bitinfocharts.com/comparison/top100cap-btc.html,BitcoinTop100ToTotal
-https://bitinfocharts.com/comparison/sentbyaddress-btc.html,BitcoinSentfromAddresses
+https://bitinfocharts.com/comparison/bitcoin-size.html,Bitcoin BlockSize
+https://bitinfocharts.com/comparison/bitcoin-mining_profitability.html,Bitcoin Mining Profitability
+https://bitinfocharts.com/comparison/bitcoin-activeaddresses.html,Bitcoin Active Addresses
+https://bitinfocharts.com/comparison/bitcoin-fee_to_reward.html,Bitcoin Fee in Reward
+https://bitinfocharts.com/comparison/bitcoin-confirmationtime.html,Bitcoin Block Time
+https://bitinfocharts.com/comparison/bitcoin-median_transaction_fee.html,Bitcoin Median Transaction Fee
+https://bitinfocharts.com/comparison/bitcoin-transactionfees.html,Bitcoin Avg Transaction Fee
+https://bitinfocharts.com/comparison/bitcoin-mediantransactionvalue.html,Bitcoin Median Transaction Value
+https://bitinfocharts.com/comparison/bitcoin-transactionvalue.html,Bitcoin Avg Transaction Value
+https://bitinfocharts.com/comparison/bitcoin-sentinusd.html,Bitcoin Sent in USD
+https://bitinfocharts.com/comparison/bitcoin-marketcap.html,Bitcoin Market Capitalization
+https://bitinfocharts.com/comparison/top100cap-btc.html,Bitcoin Top 100 Richest Addresses To Total Coins
+https://bitinfocharts.com/comparison/sentbyaddress-btc.html,Bitcoin Sent from Addresses

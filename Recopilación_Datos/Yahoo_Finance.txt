@@ -1,48 +1,47 @@
-South_Corea_Stock_Index,^KS11
-Shanghai_SE_Composite_Index,000001.SS
-S&P500,^GSPC
-Market_Volatility_Index,^VIX
-Euro_Dollar,EURUSD=X
-Yuan_Dolar,CNYUSD=X
-All_Items,CPI
-Dow_Jones_Industrial_Average,^DJI
-USD_Index,DX-Y.NYB
-Effective_Federal_FundsRate,FFR
-Brent_Oil_USD,BZ=F
-Gold,GC=F
-TESLA,TSLA
-Microsoft,MSFT
-Swiss_Franc_Dollar,CHFUSD=X
-Amazon,AMZN
-Appel,AAPL
-Marathon_Digital_Holdings,MARA
-HIVE_Blockchain_Technologies,HVBTF
-Limelight_Networks,LLNW
-Bitcoin_USD,BTC-USD
-Facebook,FB
-Cardano USD,ADA-USD
-XRP USD,XRP-USD
-Nikkei 225,^N225
-NASDAQ Composite,^IXIC
-IPC MEXICO,^MXX
-ESTX 50 PR.EUR,^STOXX50E
-Alphabet Inc.,GOOG
-DAX PERFORMANCE-INDEX,^GDAXI
-Intel_Corporation,INTC
-National_Bankshares_Inc,NKSH
-Ethereum_USD,ETH-USD
-Litecoin_USD,LTC-USD
-MicroStrategy_Incorporated,MSTR
-IBM,IBM
-Dash_USD,DASH-USD
-Siacoin_USD,SC-USD
-Stellar_USD,XLM-USD
-NEM_USD,XEM-USD
-Monero_USD,XMR-USD
-FTSE_100,^FTSE
-SSE_Composite_Index,000001.SS
-W&T_Offshore_Inc,WTI
-Wall_Street_Capital_Inc,WSSE
-XRP_USD,XRP-USD
-BitcoinCash_USD,BCH-USD
-Zcash_USD,ZEC-USD
+South Corea Stock Index,^KS11
+Shanghai SE Composite Index,000001.SS
+S&P500 Index,^GSPC
+Market Volatility Index,^VIX
+All Items CPI Index,CPI
+Dow Jones Industrial Average Index,^DJI
+USD Dollar Index,DX-Y.NYB
+Nikkei 225 Index,^N225
+Nasdaq Composite Index,^IXIC
+IPC Mexico,^MXX
+Dow Jones EURO STOXX 50 Index,^STOXX50E
+DAX Performance Index,^GDAXI
+FTSE 100 Index,^FTSE
+SSE Composite Index,000001.SS
+Euro Dollar Currency Exchange Rate,EURUSD=X
+Yuan Dolar Currency Exchange Rate,CNYUSD=X
+Swiss Franc Dollar Currency Exchange Rate,CHFUSD=X
+Brent Crude Oil Last Day Financ Stock Price (USD),BZ=F
+Gold Jun 21 Stock Price (USD),GC=F
+Tesla Stock Price (USD),TSLA
+Microsoft Stock Price (USD),MSFT
+Amazon Stock Price (USD),AMZN
+Appel Stock Price (USD),AAPL
+Marathon Digital Holdings Stock Price (USD),MARA
+HIVE Blockchain Technologies Stock Price (USD),HVBTF
+Limelight Networks Stock Price (USD),LLNW
+Facebook Stock Price (USD),FB
+Alphabet Stock Price (USD),GOOG
+Intel Corporation Stock Price (USD),INTC
+National Bankshares Stock Price (USD),NKSH
+MicroStrategy Incorporated Stock Price (USD),MSTR
+IBM Stock Price (USD),IBM
+W&T Offshore Stock Price (USD),WTI
+Wall Street Capital Stock Price (USD),WSSE
+XRP Stock Price (USD),XRP-USD
+Bitcoin Cash Stock Price (USD),BCH-USD
+Zcash Stock Price (USD),ZEC-USD
+XRP Stock Price (USD),XRP-USD
+Cardano Stock Price (USD),ADA-USD
+Ethereum Stock Price (USD),ETH-USD
+Litecoin Stock Price (USD),LTC-USD
+Dash Stock Price (USD),DASH-USD
+Siacoin Stock Price (USD),SC-USD
+Stellar Lumens Stock Price (USD),XLM-USD
+NEM Stock Price (USD),XEM-USD
+Monero Stock Price (USD),XMR-USD
+Bitcoin Stock Price (USD),BTC-USD
