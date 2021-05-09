@@ -39,12 +39,11 @@ def extract_data_from_fred(start_date, end_date):
     data_from_fred = data_from_fred.rename(columns={'T10YIE': '10-Year Breakeven Inflation Rate',
                                                     'DGS10': '10-Year Treasury Constant Maturity Rate',
                                                     'TEDRATE': 'TED Spread',
-                                                    'DTWEXBGS': 'Trade Weighted U.S. Dollar Index: Broad, Goods and '
-                                                                'Services',
+                                                    'DTWEXBGS': 'Trade Weighted US Dollar Index',
                                                     'VIXCLS': 'CBOE Volatility Index',
-                                                    'DCOILWTICO': 'Crude Oil Prices: West Texas Intermediate (WTI)',
-                                                    'DEXUSUK': 'U.S. _ U.K. Foreign Exchange Rate',
-                                                    'DEXCAUS': 'Canada _ U.S. Foreign Exchange Rate',
+                                                    'DCOILWTICO': 'Crude Oil Prices - West Texas Intermediate (WTI)',
+                                                    'DEXUSUK': 'US-Uk Foreign Exchange Rate',
+                                                    'DEXCAUS': 'Canada-US Foreign Exchange Rate',
                                                     'USEPUINDXD': 'Economic Policy Uncertainty Index for United States',
                                                     'WILL5000INDFC': 'Wilshire 5000 Total Market Full Cap Index'
                                                     })

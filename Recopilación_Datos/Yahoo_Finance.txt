@@ -35,7 +35,6 @@ Wall Street Capital Stock Price (USD),WSSE
 XRP Stock Price (USD),XRP-USD
 Bitcoin Cash Stock Price (USD),BCH-USD
 Zcash Stock Price (USD),ZEC-USD
-XRP Stock Price (USD),XRP-USD
 Cardano Stock Price (USD),ADA-USD
 Ethereum Stock Price (USD),ETH-USD
 Litecoin Stock Price (USD),LTC-USD
