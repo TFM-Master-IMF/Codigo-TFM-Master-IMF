@@ -167,7 +167,7 @@ def main():
     database = pd.concat(frames, axis=1, join='inner')
     database = database[('2018-01-01' <= database.index) & (database.index < '2021-01-01')]
     database.to_csv(dirname(dirname(abspath(__file__))) + '/Ficheros Outputs/Datos.csv',
-                    index_label='Date')
+                    index_label='Date', sep=';', decimal=',')
 
     print(database)
 

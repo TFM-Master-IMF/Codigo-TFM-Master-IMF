@@ -9,6 +9,15 @@ from statsmodels.tsa.stattools import kpss
 from os.path import dirname, abspath
 
 
+def set_bitcoin_sign_change(dataset, lag):
+    local_dataset = dataset.copy()
+    local_dataset['Bitcoin sign change'] = local_dataset['Bitcoin Stock Price (USD)'].shift(lag) - local_dataset[
+        'Bitcoin Stock Price (USD)']
+    local_dataset.dropna(axis=0, inplace=True)
+    local_dataset['Bitcoin sign change'] = local_dataset['Bitcoin sign change'].apply(lambda row: 0 if row < 0 else 1)
+    return local_dataset['Bitcoin sign change']
+
+
 def adf_test(timeseries):
     """Function that determines if a time series is stationary by performing the Augmented Dickey-Fuller test."""
 
@@ -200,7 +209,8 @@ def main():
 
     # Reading data
     dataset = pd.read_csv(dirname(dirname(abspath(__file__))) + '/Ficheros Outputs/Datos.csv',
-                          index_col='Date', parse_dates=['Date'])
+                          index_col='Date', parse_dates=['Date'], sep=';', decimal=',')
+    bitcoin_sign_change = set_bitcoin_sign_change(dataset.loc['2018-01-01':'2020-01-01'], -1)
     dataset = dataset.loc['2018-01-01':'2019-12-31']
 
     # Making all the variables of the dataset stationary
@@ -219,11 +229,13 @@ def main():
     for key, value in cross_correlation_results.items():
         frames.append(dataset_log_dif[key].shift(value[1]))
     frames.append(dataset_log_dif['Bitcoin Stock Price (USD)'])
-    dataset = pd.concat(frames, axis=1, join='inner')
-    dataset.dropna(axis=0, inplace=True)
-    dataset.to_csv(dirname(dirname(abspath(__file__))) + '/Ficheros Outputs/DatosFinales.csv',
-                   index_label='Date')
+    frames.append(bitcoin_sign_change)
+    final_dataset = pd.concat(frames, axis=1, join='inner')
+    final_dataset.dropna(axis=0, inplace=True)
+    final_dataset.to_csv(dirname(dirname(abspath(__file__))) + '/Ficheros Outputs/DatosFinales.csv',
+                         index_label='Date', sep=';', decimal=',')
     print(dataset)
+    print(final_dataset)
 
 
 if __name__ == "__main__":
