@@ -1,8 +1,8 @@
 from sklearn.ensemble import RandomForestClassifier
 import numpy as np
 
-from Models.Hyperparameter_optimization import evaluate_hyperparameter
-from Models.utils import read_data, split_train_test, plot_roc_curve
+from Hyperparameter_optimization import evaluate_hyperparameter
+from utils import read_data, split_train_test, plot_roc_curve
 
 
 def main():
