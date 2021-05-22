@@ -17,10 +17,10 @@ def split_train_test(data):
     y = data["Bitcoin sign change"]
 
     # División en train y test
-    X_train, X_test, y_train, y_test = train_test_split(X, y, stratify=y, test_size=0.2)
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, shuffle=False)
 
     # División del set de entrenamiento en entrenamiento y validación
-    X_train, X_val, y_train, y_val = train_test_split(X_train, y_train, stratify=y_train, test_size=0.2)
+    X_train, X_val, y_train, y_val = train_test_split(X_train, y_train, test_size=0.2, shuffle=False)
 
     return X_train, X_val, X_test, y_train, y_val, y_test
 
@@ -39,4 +39,4 @@ def plot_roc_curve(y_val, y_pred):
 
 
 if __name__ == "__main__":
-    read_data()
+    data = read_data()

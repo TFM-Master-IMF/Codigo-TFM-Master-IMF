@@ -1,4 +1,3 @@
-import skopt
 from skopt.space import Integer, Real, Categorical
 from skopt.utils import use_named_args
 from skopt import gp_minimize, forest_minimize
