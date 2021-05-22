@@ -17,9 +17,9 @@ def main():
 
     X_train, X_val, X_test, y_train, y_val, y_test = split_train_test(dataset)
 
-    params = evaluate_hyperparameter(LogisticRegression(), X_train, X_val, y_train, y_val)
+    params = evaluate_hyperparameter(pipeline, X_train, X_val, y_train, y_val)
 
-    model = LogisticRegression(**params)
+    model = pipeline["classifier"].set_params(**params)
     model.fit(np.row_stack([X_train, X_val]), np.concatenate([y_train, y_val]))
     y_pred = model.predict_proba(X_test)[:, 1]
 
