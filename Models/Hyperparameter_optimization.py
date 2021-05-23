@@ -1,3 +1,4 @@
+from skopt import dump
 from skopt.callbacks import DeltaXStopper
 from skopt.space import Integer, Real, Categorical
 from skopt.utils import use_named_args
@@ -54,7 +55,7 @@ def evaluate_hyperparameter(model, X_train, X_val, y_train, y_val):
         os.makedirs(directory)
 
     with open(os.path.join(directory, file_name), 'wb') as file:
-        skopt.dump(results, file, store_objective=False)
+        dump(results, file, store_objective=False)
 
     # summarizing finding:
     dictionary = dict(zip([p.name for p in filter_space], results.x))

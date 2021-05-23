@@ -8,6 +8,7 @@ import matplotlib.pyplot as plt
 def read_data():
     data = pd.read_csv(dirname(dirname(abspath(__file__))) + '/Ficheros Outputs/DatosFinales.csv', sep=';', decimal=',')
     data.set_index('Date', inplace=True)
+    data.drop('Bitcoin Stock Price (USD)', axis=1, inplace=True)
     print(data.head())
     return data
 
