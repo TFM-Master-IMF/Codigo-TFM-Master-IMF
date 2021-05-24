@@ -59,6 +59,6 @@ def evaluate_hyperparameter(model, X_train, X_val, y_train, y_val):
 
     # summarizing finding:
     dictionary = dict(zip([p.name for p in filter_space], results.x))
-    print('Best Accuracy: %.3f' % results.fun)
+    print('Best achieved with the validation set: %.3f' % results.fun)
     print('Best Parameters: %s' % dictionary)
     return dictionary

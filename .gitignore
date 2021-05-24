@@ -4,6 +4,7 @@ env
 .idea
 **/.ipynb_checkpoints
 **/__pycache__
+**/artifacts
 **/env
 */.idea
 Ficheros Outputs/*

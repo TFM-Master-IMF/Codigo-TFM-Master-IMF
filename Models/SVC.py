@@ -1,4 +1,5 @@
 from sklearn.preprocessing import MinMaxScaler, StandardScaler
+from sklearn.metrics import accuracy_score
 from sklearn.svm import SVC
 import numpy as np
 from sklearn.pipeline import Pipeline
@@ -8,6 +9,7 @@ from utils import read_data, split_train_test, plot_roc_curve
 
 
 def main():
+    np.random.seed(0)
 
     pipeline = Pipeline([
         ("scaler", StandardScaler()),
@@ -21,9 +23,11 @@ def main():
 
     model = SVC(probability=True, **params)
     model.fit(np.row_stack([X_train, X_val]), np.concatenate([y_train, y_val]))
-    y_pred = model.predict_proba(X_test)[:, 1]
+    y_pred = model.predict(X_test)
+    y_pred_proba = model.predict_proba(X_test)[:, 1]
 
-    plot_roc_curve(y_test, y_pred)
+    print('Best accuracy achieved with the test set: ', accuracy_score(y_test, y_pred))
+    plot_roc_curve(y_test, y_pred_proba)
 
 
 if __name__ == "__main__":
