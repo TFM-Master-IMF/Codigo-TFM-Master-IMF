@@ -1,58 +1,64 @@
 import numpy as np
 import tensorflow as tf
 import matplotlib.pyplot as plt
-from tensorflow.keras import callbacks
 
 from Hyperparameter_optimization import evaluate_hyperparameter
 from utils import read_data, split_train_test, plot_roc_curve
 
-
-def split_dataset(dataset):
+def data_preparation_lstm(dataset, dependent_variable, look_back=1):
     train_size = int(len(dataset) * 0.8)
     train, test = dataset.iloc[0:train_size], dataset.iloc[train_size:len(dataset)]
-    X_train = train.drop("Bitcoin sign change", axis=1)
-    y_train = train["Bitcoin sign change"]
-    X_test = test.drop("Bitcoin sign change", axis=1)
-    y_test = test["Bitcoin sign change"]
-    return X_train, X_test, y_train, y_test
 
+    X_train = train.drop(dependent_variable, axis=1)
+    y_train = train[dependent_variable]
+    X_test = test.drop(dependent_variable, axis=1)
+    y_test = test[dependent_variable]
+
+    dataX_train, dataY_train, dataX_test, dataY_test = [], [], [], []
+
+    for i in range(len(X_train)-look_back-1):
+        dataX_train.append(X_train[i:(i+look_back)])
+        dataY_train.append(y_train[i + look_back])
+
+    for i in range(len(X_test)-look_back-1):
+        dataX_test.append(X_test[i:(i+look_back)])
+        dataY_test.append(y_test[i + look_back])
+
+    X_train, y_train = np.array(dataX_train), np.array(dataY_train)
+    X_test, y_test = np.array(dataX_test), np.array(dataY_test)  
+    X_train = X_train.reshape(X_train.shape[0], 1, X_train.shape[2])
+    X_test = X_test.reshape(X_test.shape[0], 1, X_test.shape[2])
+
+    return X_train, X_test, y_train, y_test
 
 class LSTM():
     def __init__(self, X_train, X_test, y_train, y_test):
-        self.X_train = X_train
-        self.X_test = X_test
-        self.y_train = y_train
-        self.y_test = y_test
+        self.X_train, self.X_test, self.y_train, self.y_test = X_train, X_test, y_train, y_test
         self.LAYERS = [8, 8, 8, 1]                # number of units in hidden and output layers
-        self.EPOCH = 300                           # number of epochs
+        self.EPOCH = 300                          # number of epochs
         self.LR = 5e-2                            # learning rate of the gradient descent
         self.LAMBD = 3e-2                         # lambda in L2 regularization
         self.DP = 0.0                             # dropout rate
-        self.RDP = 0.0                            # recurrent dropout rate
-
-    def data_preparation_lstm(self, look_back=1):
-        dataX_train, dataY_train, dataX_test, dataY_test = [], [], [], []
-
-        for i in range(len(self.X_train)-look_back-1):
-            dataX_train.append(self.X_train[i:(i+look_back)])
-            dataY_train.append(self.y_train[i + look_back])
-
-        for i in range(len(self.X_test)-look_back-1):
-            dataX_test.append(self.X_test[i:(i+look_back)])
-            dataY_test.append(self.y_test[i + look_back])
-
-        self.X_train, self.y_train = np.array(dataX_train), np.array(dataY_train)
-        self.X_test, self.y_test = np.array(dataX_test), np.array(dataY_test)  
-        self.X_train = self.X_train.reshape(self.X_train.shape[0], 1, self.X_train.shape[2])
-        # self.y_train, = self.y_train.reshape(self.y_train.shape[0], 1, 1)
-        self.X_test = self.X_test.reshape(self.X_test.shape[0], 1, self.X_test.shape[2])
-        # self.y_test = self.y_test.reshape(self.y_test.shape[0], 1, 1)
-
-
+        self.RDP = 0.0                            # recurrent dropout rate             
+        self.model = None
+    
+    def learning_rate(self, decay_patience, minimum_learning_rate):
+        # Define a learning rate decay method:
+        lr_decay = tf.keras.callbacks.ReduceLROnPlateau(monitor='loss', 
+                                    patience=decay_patience, verbose=0, 
+                                    factor=0.5, min_lr=minimum_learning_rate) 
+        return lr_decay
+    
+    def early_stopping(self, early_stopping_patience):
+        early_stop = tf.keras.callbacks.EarlyStopping(monitor='val_loss', min_delta=0, 
+                                patience=early_stopping_patience, verbose=1, mode='auto',
+                                baseline=0, restore_best_weights=True)
+        return early_stop
+    
     def build_model(self):
         # Build the Model
-        model = tf.keras.Sequential()
-        model.add(tf.keras.layers.LSTM(input_shape = [self.X_train.shape[1], self.X_train.shape[2]], units=self.LAYERS[0],
+        self.model = tf.keras.Sequential()
+        self.model.add(tf.keras.layers.LSTM(input_shape = [self.X_train.shape[1], self.X_train.shape[2]], units=self.LAYERS[0],
                     activation='tanh', recurrent_activation='hard_sigmoid',
                     kernel_regularizer=tf.keras.regularizers.l2(self.LAMBD), 
                     recurrent_regularizer=tf.keras.regularizers.l2(self.LAMBD),
@@ -60,8 +66,8 @@ class LSTM():
                     return_sequences=True, return_state=False,
                     stateful=False, unroll=False
                     ))
-        model.add(tf.keras.layers.BatchNormalization())
-        model.add(tf.keras.layers.LSTM(units=self.LAYERS[1],
+        self.model.add(tf.keras.layers.BatchNormalization())
+        self.model.add(tf.keras.layers.LSTM(units=self.LAYERS[1],
                     activation='tanh', recurrent_activation='hard_sigmoid',
                     kernel_regularizer=tf.keras.regularizers.l2(self.LAMBD), 
                     recurrent_regularizer=tf.keras.regularizers.l2(self.LAMBD),
@@ -69,8 +75,8 @@ class LSTM():
                     return_sequences=True, return_state=False,
                     stateful=False, unroll=False
                     ))
-        model.add(tf.keras.layers.BatchNormalization())
-        model.add(tf.keras.layers.LSTM(units=self.LAYERS[2],
+        self.model.add(tf.keras.layers.BatchNormalization())
+        self.model.add(tf.keras.layers.LSTM(units=self.LAYERS[2],
                     activation='tanh', recurrent_activation='hard_sigmoid',
                     kernel_regularizer=tf.keras.regularizers.l2(self.LAMBD), 
                     recurrent_regularizer=tf.keras.regularizers.l2(self.LAMBD),
@@ -78,26 +84,28 @@ class LSTM():
                     return_sequences=False, return_state=False,
                     stateful=False, unroll=False
                     ))
-        model.add(tf.keras.layers.BatchNormalization())
-        model.add(tf.keras.layers.Dense(units=self.LAYERS[3], activation='sigmoid'))
+        self.model.add(tf.keras.layers.BatchNormalization())
+        self.model.add(tf.keras.layers.Dense(units=self.LAYERS[3], activation='sigmoid'))
 
         # Compile the model with Adam optimizer
-        model.compile(loss='binary_crossentropy',
+        self.model.compile(loss='binary_crossentropy',
                     metrics=['accuracy'],
                     optimizer=tf.keras.optimizers.Adam(lr=self.LR))
-        print(model.summary())
+        print(self.model.summary())
 
-        # Define a learning rate decay method:
+    def fitting_model(self):
+        # Defining a learning rate decay method
         lr_decay = tf.keras.callbacks.ReduceLROnPlateau(monitor='loss', 
                                     patience=5, verbose=0, 
-                                    factor=0.5, min_lr=1e-8)
+                                    factor=0.5, min_lr=1e-8) 
 
-        # Define Early Stopping:
+        # Defining early stopping strategy
         early_stop = tf.keras.callbacks.EarlyStopping(monitor='val_loss', min_delta=0, 
                                 patience=30, verbose=1, mode='auto',
-                                baseline=0, restore_best_weights=True)
+                                baseline=0, restore_best_weights=True)   
+
         # Training the model
-        history = model.fit(self.X_train, self.y_train,
+        history = self.model.fit(self.X_train, self.y_train,
                         epochs=self.EPOCH,
                         batch_size= self.X_train.shape[0],
                         validation_split=0.2,
@@ -111,30 +119,24 @@ class LSTM():
         plt.legend()
         plt.show()
 
+    def evaluate_model(self):
         # Evaluate the model:
-        test_acc = model.evaluate(self.X_test, self.y_test,
+        test_acc = self.model.evaluate(self.X_test, self.y_test,
                                             batch_size=self.X_test.shape[0], verbose=0)[1]
         print(f'test accuracy = {round(test_acc * 100, 4)}%')
         print(f'test error = {round((1 - test_acc) *  self.X_test.shape[0])} out of  {self.X_test.shape[0]} examples')
-
 
 def main():
     np.random.seed(1)
     tf.random.set_seed(1)
     
     dataset = read_data()
-
-    X_train, X_test, y_train, y_test = split_dataset(dataset)
+    X_train, X_test, y_train, y_test = data_preparation_lstm(dataset, 'Bitcoin sign change')
 
     LSTM_classifier = LSTM(X_train, X_test, y_train, y_test)
-    LSTM_classifier.data_preparation_lstm()
     LSTM_classifier.build_model()
-
+    LSTM_classifier.fitting_model()
+    LSTM_classifier.evaluate_model()
 
 if __name__ == "__main__":
     main()
-
-
-"""y_hat = model.predict_classes(X_test, batch_size=M_TEST, verbose=1)
-for i in range(y_hat.shape[0]):
-    print(y_hat[i], y_test[i])"""
