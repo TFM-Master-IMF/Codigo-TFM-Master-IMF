@@ -2,12 +2,12 @@ import numpy as np
 import tensorflow as tf
 import matplotlib.pyplot as plt
 
-from Hyperparameter_optimization import evaluate_hyperparameter
-from utils import read_data, split_train_test, plot_roc_curve
+from utils import read_data, plot_roc_curve
 
 def data_preparation_lstm(dataset, dependent_variable, look_back=1):
     train_size = int(len(dataset) * 0.8)
-    train, test = dataset.iloc[0:train_size], dataset.iloc[train_size:len(dataset)]
+    train = dataset.iloc[0:train_size]
+    test = dataset.iloc[train_size:len(dataset)]
 
     X_train = train.drop(dependent_variable, axis=1)
     y_train = train[dependent_variable]
@@ -24,8 +24,10 @@ def data_preparation_lstm(dataset, dependent_variable, look_back=1):
         dataX_test.append(X_test[i:(i+look_back)])
         dataY_test.append(y_test[i + look_back])
 
-    X_train, y_train = np.array(dataX_train), np.array(dataY_train)
-    X_test, y_test = np.array(dataX_test), np.array(dataY_test)  
+    X_train = np.array(dataX_train) 
+    y_train = np.array(dataY_train)
+    X_test = np.array(dataX_test)
+    y_test = np.array(dataY_test)  
     X_train = X_train.reshape(X_train.shape[0], 1, X_train.shape[2])
     X_test = X_test.reshape(X_test.shape[0], 1, X_test.shape[2])
 
@@ -33,7 +35,10 @@ def data_preparation_lstm(dataset, dependent_variable, look_back=1):
 
 class LSTM():
     def __init__(self, X_train, X_test, y_train, y_test):
-        self.X_train, self.X_test, self.y_train, self.y_test = X_train, X_test, y_train, y_test
+        self.X_train = X_train
+        self.X_test = X_test
+        self.y_train = y_train
+        self.y_test = y_test
         self.LAYERS = [8, 8, 8, 1]                # number of units in hidden and output layers
         self.EPOCH = 300                          # number of epochs
         self.LR = 5e-2                            # learning rate of the gradient descent
@@ -41,19 +46,6 @@ class LSTM():
         self.DP = 0.0                             # dropout rate
         self.RDP = 0.0                            # recurrent dropout rate             
         self.model = None
-    
-    def learning_rate(self, decay_patience, minimum_learning_rate):
-        # Define a learning rate decay method:
-        lr_decay = tf.keras.callbacks.ReduceLROnPlateau(monitor='loss', 
-                                    patience=decay_patience, verbose=0, 
-                                    factor=0.5, min_lr=minimum_learning_rate) 
-        return lr_decay
-    
-    def early_stopping(self, early_stopping_patience):
-        early_stop = tf.keras.callbacks.EarlyStopping(monitor='val_loss', min_delta=0, 
-                                patience=early_stopping_patience, verbose=1, mode='auto',
-                                baseline=0, restore_best_weights=True)
-        return early_stop
     
     def build_model(self):
         # Build the Model
@@ -96,7 +88,7 @@ class LSTM():
     def fitting_model(self):
         # Defining a learning rate decay method
         lr_decay = tf.keras.callbacks.ReduceLROnPlateau(monitor='loss', 
-                                    patience=5, verbose=0, 
+                                    patience=30, verbose=0, 
                                     factor=0.5, min_lr=1e-8) 
 
         # Defining early stopping strategy
@@ -123,8 +115,10 @@ class LSTM():
         # Evaluate the model:
         test_acc = self.model.evaluate(self.X_test, self.y_test,
                                             batch_size=self.X_test.shape[0], verbose=0)[1]
+        y_pred_proba = self.model.predict(self.X_test)
         print(f'test accuracy = {round(test_acc * 100, 4)}%')
         print(f'test error = {round((1 - test_acc) *  self.X_test.shape[0])} out of  {self.X_test.shape[0]} examples')
+        plot_roc_curve(self.y_test, y_pred_proba)
 
 def main():
     np.random.seed(1)
