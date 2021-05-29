@@ -9,15 +9,6 @@ from statsmodels.tsa.stattools import kpss
 from os.path import dirname, abspath
 
 
-def set_bitcoin_sign_change(dataset, lag):
-    local_dataset = dataset.copy()
-    local_dataset['Bitcoin sign change'] = local_dataset['Bitcoin Stock Price (USD)'].shift(lag) - local_dataset[
-        'Bitcoin Stock Price (USD)']
-    local_dataset.dropna(axis=0, inplace=True)
-    local_dataset['Bitcoin sign change'] = local_dataset['Bitcoin sign change'].apply(lambda row: 0 if row < 0 else 1)
-    return local_dataset['Bitcoin sign change']
-
-
 def adf_test(timeseries):
     """Function that determines if a time series is stationary by performing the Augmented Dickey-Fuller test."""
 
@@ -211,7 +202,8 @@ def main():
     # Reading data
     dataset = pd.read_csv(dirname(dirname(abspath(__file__))) + '/Ficheros Outputs/Datos.csv',
                           index_col='Date', parse_dates=['Date'], sep=';', decimal=',')
-    bitcoin_sign_change = set_bitcoin_sign_change(dataset.loc['2018-01-01':'2020-01-01'], -1)
+    bitcoin_sign_change = dataset['Bitcoin sign change']
+    dataset.drop('Bitcoin sign change', inplace=True, axis=1)
     dataset = dataset.loc['2018-01-01':'2019-12-31']
 
     # Making all the variables of the dataset stationary

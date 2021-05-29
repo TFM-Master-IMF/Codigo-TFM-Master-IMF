@@ -166,6 +166,10 @@ def main():
     # Merging the distinct dataframes
     database = pd.concat(frames, axis=1, join='inner')
     database = database[('2018-01-01' <= database.index) & (database.index < '2021-01-01')]
+    database['Bitcoin sign change'] = database['Bitcoin Stock Price (USD)'].shift(-1) - database[
+        'Bitcoin Stock Price (USD)']
+    database.dropna(axis=0, inplace=True)
+    database['Bitcoin sign change'] = database['Bitcoin sign change'].apply(lambda row: 0 if row < 0 else 1)
     database.to_csv(dirname(dirname(abspath(__file__))) + '/Ficheros Outputs/Datos.csv',
                     index_label='Date', sep=';', decimal=',')
 
