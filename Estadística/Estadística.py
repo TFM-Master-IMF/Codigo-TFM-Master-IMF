@@ -113,7 +113,8 @@ def differencing_transformation(dataset, lag):
 
     local_dataset = dataset.copy()
     for col in local_dataset.columns:
-        local_dataset[col] = (local_dataset[col] - local_dataset[col].shift(lag)) * 100
+        local_dataset[col] = (local_dataset[col] - local_dataset[col].shift(lag))
+        local_dataset.rename(columns={col: 'Log Return ' + col}, inplace=True)
     local_dataset.dropna(inplace=True)
     return local_dataset
 
@@ -122,17 +123,18 @@ def make_data_stationary(dataset):
     """Function that computes the logarithmic and differencing transformation of the input dataset variables until
     the data becomes stationary."""
 
-    lag = 0
+    lag = 1
     local_dataset = dataset.copy()
     dataset_log = logarithmic_transformation(local_dataset)
     dataset_log_dif = dataset_log.copy()
-    while any(False in ele for ele in check_stationarity(dataset_log_dif, lag)):
+    dataset_log_dif = differencing_transformation(dataset_log, lag)
+    while any(False in ele for ele in check_stationarity(dataset_log_dif, lag)):    
         lag += 1
-        dataset_log_dif = differencing_transformation(dataset_log, lag)
+        dataset_log_dif = differencing_transformation(dataset_log, lag)       
     return dataset_log_dif
 
 
-def grangers_causality_test(dataset, variables, max_lag, target='Bitcoin Stock Price (USD)', test='ssr_chi2test'):
+def grangers_causality_test(dataset, variables, max_lag, target='Log Return Bitcoin Stock Price (USD)', test='ssr_chi2test'):
     """Check Granger Causality of all the Time series.
     The target is the response variable, the independent variables are the predictors."""
 
@@ -168,7 +170,7 @@ def cross_correlation(dataset, target):
         if col != target:
             cross_correlations[col] = [crosscorr(dataset[target], dataset[col], i) for i in range(0, 31)]
             plt.subplot(a, b, c)
-            plt.title('Bitcoin Stock Price (USD) - ' + col)
+            plt.title('Log Return Bitcoin Stock Price (USD) - ' + col)
             plt.xlabel('Time lags in number of days')
             plt.ylabel('Cross-Correlation value')
             plt.plot([i for i in range(0, 31)], cross_correlations[col])
@@ -182,9 +184,8 @@ def cross_correlation(dataset, target):
     lags = abs_cross_correlations.idxmax()
     i = 0
     for col in cross_correlations.columns:
-        best_lags[col] = (cross_correlations.loc[lags[i], col], lags[i])
+        best_lags[col] = (col + ' ' + 'lag' + ' ' + str(lags[i]), cross_correlations.loc[lags[i], col], lags[i])
         i += 1
-
     return best_lags
 
 
@@ -214,27 +215,31 @@ def main():
     dataset = dataset.loc['2018-01-01':'2019-12-31']
 
     # Making all the variables of the dataset stationary
-    dataset_log_dif = make_data_stationary(dataset)
+    dataset_log_dif = make_data_stationary(dataset)  
 
+    # Checking for causality
     grangers_causality_test_results = grangers_causality_test(dataset_log_dif, dataset_log_dif.columns, 30)
     selected_variables = [key for key, value in grangers_causality_test_results.items() if value]
-    selected_variables.append('Bitcoin Stock Price (USD)')
+    selected_variables.append('Log Return Bitcoin Stock Price (USD)')
 
     # Selection of the best lags for each independent variables based on their correlations with the Bitcoin Price
     cross_correlation_results = cross_correlation(dataset_log_dif.loc[:, selected_variables],
-                                                  'Bitcoin Stock Price (USD)')
-
+                                                  'Log Return Bitcoin Stock Price (USD)')
+    
     # Generation of the final dataset
     frames = []
     for key, value in cross_correlation_results.items():
-        frames.append(dataset_log_dif[key].shift(value[1]))
-    frames.append(dataset_log_dif['Bitcoin Stock Price (USD)'])
+        feature = dataset_log_dif[key].shift(value[2]).rename(value[0], inplace=True)
+        frames.append(dataset[key[11:]]) # Getting de variables of the initial dataset (we need to slice the Log Return tag)
+        frames.append(feature)
+    # frames.append(dataset_log_dif['Log Return Bitcoin Stock Price (USD)']) 
+    # frames.append('Bitcoin Stock Price (USD)')
     frames.append(bitcoin_sign_change)
     final_dataset = pd.concat(frames, axis=1, join='inner')
     final_dataset.dropna(axis=0, inplace=True)
     final_dataset.to_csv(dirname(dirname(abspath(__file__))) + '/Ficheros Outputs/DatosFinales.csv',
-                         index_label='Date', sep=';', decimal=',')
-    print(dataset)
+                         index_label='Date', sep=';', decimal='.')
+
     print(final_dataset)
 
 
