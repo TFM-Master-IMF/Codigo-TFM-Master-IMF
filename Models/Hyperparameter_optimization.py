@@ -22,7 +22,8 @@ SPACE = [
     Categorical(['linear', 'poly', 'rbf', 'sigmoid'], name='kernel'),
     # Categorical(['svd', 'lsqr', 'eigen'], name='solver'),
     Integer(1, 5, name='degree'),
-    Real(1e-6, 100.0, 'log-uniform', name='gamma')
+    Real(1e-6, 100.0, 'log-uniform', name='gamma'),
+    Real(0, 1, name='reg_param')
 ]
 
 
@@ -59,6 +60,6 @@ def evaluate_hyperparameter(model, X_train, X_val, y_train, y_val):
 
     # summarizing finding:
     dictionary = dict(zip([p.name for p in filter_space], results.x))
-    print('Best achieved with the validation set: %.3f' % results.fun)
+    print('Accuracy achieved with the validation set: %.3f' % results.fun)
     print('Best Parameters: %s' % dictionary)
     return dictionary

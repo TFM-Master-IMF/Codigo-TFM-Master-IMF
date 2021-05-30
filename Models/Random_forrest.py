@@ -20,7 +20,7 @@ def main():
     y_pred = model.predict(X_test)
     y_pred_proba = model.predict_proba(X_test)[:, 1]
 
-    print('Best accuracy achieved with the test set: ', accuracy_score(y_test, y_pred))
+    print('Accuracy achieved with the test set: ', accuracy_score(y_test, y_pred))
     plot_roc_curve(y_test, y_pred_proba)
 
 
