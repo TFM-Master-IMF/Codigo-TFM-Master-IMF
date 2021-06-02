@@ -1,8 +1,12 @@
 from sklearn.linear_model import LogisticRegression
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import MinMaxScaler
-from sklearn.metrics import accuracy_score
+from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score
 import numpy as np
+
+from os.path import dirname, abspath
+import sys
+sys.path.insert(0, dirname(dirname(abspath(__file__))))
 
 from Hyperparameter_optimization import evaluate_hyperparameter
 from utils import read_data, split_train_test, plot_roc_curve
@@ -16,6 +20,7 @@ def main():
         ("classifier", LogisticRegression())
     ])
 
+
     dataset = read_data()
 
     X_train, X_val, X_test, y_train, y_val, y_test = split_train_test(dataset)
@@ -27,7 +32,10 @@ def main():
     y_pred = model.predict(X_test)
     y_pred_proba = model.predict_proba(X_test)[:, 1]
 
-    print('Accuracy achieved with the test set: ', accuracy_score(y_test, y_pred))
+    print('\nAccuracy achieved with the test set: ', accuracy_score(y_test, y_pred))
+    print('Precision achieved with the test set: ', precision_score(y_test, y_pred))
+    print('Recall achieved with the test set: ', round(recall_score(y_test, y_pred), 2))
+    print('F1 Score achieved with the test set: ', round(f1_score(y_test, y_pred), 2))
     plot_roc_curve(y_test, y_pred_proba)
 
 

@@ -2,6 +2,10 @@ import numpy as np
 import tensorflow as tf
 import matplotlib.pyplot as plt
 
+from os.path import dirname, abspath
+import sys
+sys.path.insert(0, dirname(dirname(abspath(__file__))))
+
 from utils import read_data, plot_roc_curve
 
 def data_preparation_lstm(dataset, dependent_variable, look_back=1):

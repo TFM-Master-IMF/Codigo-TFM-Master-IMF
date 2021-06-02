@@ -12,6 +12,19 @@ def read_data():
     print(data.head())
     return data
 
+def read_log_dataset():
+    data = pd.read_csv(dirname(dirname(abspath(__file__))) + '/Ficheros Outputs/DatosFinales.csv', sep=';', decimal='.')
+    data.set_index('Date', inplace=True)
+    dataset_log = data.loc[:,data.columns.str.contains('^log', case=False) | data.columns.str.contains('^Bitcoin sign change', case=False)]
+    print(dataset_log.head())
+    return dataset_log
+
+def read_raw_dataset():
+    data = pd.read_csv(dirname(dirname(abspath(__file__))) + '/Ficheros Outputs/DatosFinales.csv', sep=';', decimal='.')
+    data.set_index('Date', inplace=True)
+    dataset_raw = data.loc[:,~data.columns.str.contains('^log', case=False)]
+    print(dataset_raw.head())
+    return dataset_raw
 
 def split_train_test(data):
     X = data.drop("Bitcoin sign change", axis=1)
