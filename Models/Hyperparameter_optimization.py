@@ -36,7 +36,28 @@ SPACE = {
         Integer(100, 500, name='max_iter'),
         Real(1e-6, 100.0, 'log-uniform', name='tol'),
         Real(1e-8, 100.0, 'log-uniform', name='epsilon'),
-    ]
+    ],
+    "XGBClassifier": [
+        Integer(1, 18, name='max_depth'),
+        Integer(1, 9, name='gamma'),
+        Integer(40, 180, name='reg_alpha'),
+        Real(0, 1.0, name='reg_lambda'),
+        Real(0.5, 1.0, name='colsample_bytree'),
+        Integer(0, 10, name='min_child_weight'),
+        Integer(0, 180, name='n_estimators'),
+    ],
+    "QuadraticDiscriminantAnalysis": [
+        Real(0, 1, name='reg_param')
+    ],
+    "SVC": [
+        Real(0, 100, name='C'),
+        Real(0.001, 1, name='gamma'),
+        Categorical(['rbf', 'poly', 'sigmoid'], name='kernel')
+    ],
+    'LinearDiscriminantAnalysis': [
+        Categorical(['lsqr', 'eigen'], name='solver'),
+        Real(0, 1, name='shrinkage')
+]
 }
 
 
