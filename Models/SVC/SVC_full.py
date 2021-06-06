@@ -16,7 +16,7 @@ def main():
     np.random.seed(0)
 
     pipeline = Pipeline([
-        ("scaler", StandardScaler()),
+        ("scaler", MinMaxScaler()),
         ("classifier", SVC(probability=True))
     ])
     dataset = read_data()

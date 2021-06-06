@@ -7,33 +7,64 @@ from sklearn.metrics import roc_auc_score
 from sklearn.pipeline import Pipeline
 import os
 
-
-
 # define the space of hyperparameters to search
-SPACE = [
-    Real(0.01, 0.5, name='learning_rate', prior='log-uniform'),
-    Integer(1, 30, name='max_depth'),
-    Integer(100, 700, name='n_estimators'),
-    Integer(0, 1, name='n_components'),
-    Integer(100, 200, name='max_iter'),
-    Integer(2, 100, name='num_leaves'),
-    Integer(10, 1000, name='min_data_in_leaf'),
-    Real(0.1, 1.0, name='feature_fraction', prior='uniform'),
-    Real(0.1, 1.0, name='subsample', prior='uniform'),
-    Real(1e-6, 100.0, 'log-uniform', name='C'),
-    Categorical(['linear', 'poly', 'rbf', 'sigmoid'], name='kernel'),
-    # Categorical(['svd', 'lsqr', 'eigen'], name='solver'),
-    Integer(1, 5, name='degree'),
-    Real(1e-6, 100.0, 'log-uniform', name='gamma'),
-    Real(0, 1, name='reg_param')
-]
+SPACE = {
+    "LogisticRegression": [
+        # Categorical(['none', 'l2'], name='penalty'),
+        Real(1e-6, 100.0, 'log-uniform', name='tol'),
+        Real(1e-6, 100.0, 'log-uniform', name='C'),
+        Categorical([True, False], name='fit_intercept'),
+        # Real(-5, 5, 'log-uniform', name='intercept_scaling'),
+        Categorical(['newton-cg', 'lbfgs', 'sag', 'saga'], name='solver'),
+        Categorical(['auto', 'ovr', 'multinomial'], name='multi_class'),
+        Integer(100, 200, name='max_iter'),
+        Integer(0, 50, name='random_state'),
+        # Integer(0, 100, name='verbose')
+    ],
+    "RandomForestClassifier": [
+        Integer(100, 700, name='n_estimators'),
+        Categorical(['gini', 'entropy'], name='criterion'),
+        Integer(1, 30, name='max_depth'),
+        Categorical(['auto', 'sqrt', 'log2'], name='max_features'),
+        # Categorical([True, False], name='bootstrap'),
+        Categorical([True, False], name='oob_score'),
+    ],
+    "MLPClassifier": [
+        Categorical(['identity', 'logistic', 'tanh', 'relu'], name='activation'),
+        Categorical(['lbfgs', 'sgd', 'adam'], name='solver'),
+        Categorical(['constant', 'invscaling', 'adaptive'], name='learning_rate'),
+        Integer(100, 500, name='max_iter'),
+        Real(1e-6, 100.0, 'log-uniform', name='tol'),
+        Real(1e-8, 100.0, 'log-uniform', name='epsilon'),
+    ]
+}
+
+
+# SPACE =
+#     [
+#     Real(0.01, 0.5, name='learning_rate', prior='log-uniform'),
+#     Integer(1, 30, name='max_depth'),
+#     Integer(100, 700, name='n_estimators'),
+#     Integer(0, 1, name='n_components'),
+#     Integer(100, 200, name='max_iter'),
+#     Integer(2, 100, name='num_leaves'),
+#     Integer(10, 1000, name='min_data_in_leaf'),
+#     Real(0.1, 1.0, name='feature_fraction', prior='uniform'),
+#     Real(0.1, 1.0, name='subsample', prior='uniform'),
+#     Real(1e-6, 100.0, 'log-uniform', name='C'),
+#     Categorical(['linear', 'poly', 'rbf', 'sigmoid'], name='kernel'),
+#     # Categorical(['svd', 'lsqr', 'eigen'], name='solver'),
+#     Integer(1, 5, name='degree'),
+#     Real(1e-6, 100.0, 'log-uniform', name='gamma'),
+#     Real(0, 1, name='reg_param')
+# ]
 
 
 def evaluate_hyperparameter(model, X_train, X_val, y_train, y_val):
-
     classifier = model["classifier"] if type(model) == Pipeline else model
 
-    filter_space = [p for p in SPACE if p.name in classifier.get_params().keys()]
+    filter_space = SPACE[type(
+        classifier).__name__]  # [p for p in SPACE[type(classifier).__name__] if p.name in classifier.get_params().keys()]
 
     # define the function used to evaluate a given configuration
     @use_named_args(filter_space)
