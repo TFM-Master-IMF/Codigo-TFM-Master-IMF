@@ -31,7 +31,7 @@ def main():
     print('Precision achieved with the test set: ', precision_score(y_test_raw, y_pred_raw))
     print('Recall achieved with the test set: ', round(recall_score(y_test_raw, y_pred_raw), 2))
     print('F1 Score achieved with the test set: ', round(f1_score(y_test_raw, y_pred_raw), 2))
-    plot_roc_curve(y_test_raw, y_pred_proba_raw)
+    #plot_roc_curve(y_test_raw, y_pred_proba_raw)
 
 
 if __name__ == "__main__":
