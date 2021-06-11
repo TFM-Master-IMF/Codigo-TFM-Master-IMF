@@ -15,12 +15,15 @@ def main():
     
     dataset_raw = read_raw_dataset()
 
-    X_train_raw, X_val_raw, X_test_raw, y_train_raw, y_val_raw, y_test_raw = split_train_test(dataset_raw)
+    X_train_raw, X_test_raw, y_train_raw, y_test_raw = split_train_test(dataset_raw)
 
-    params_raw = evaluate_hyperparameter(XGBClassifier(use_label_encoder=False, eval_metric='logloss'), X_train_raw, X_val_raw, y_train_raw, y_val_raw)
+    #params_raw = evaluate_hyperparameter(XGBClassifier(use_label_encoder=False, eval_metric='logloss'), X_train_raw, X_val_raw, y_train_raw, y_val_raw)
 
-    model_raw = XGBClassifier(**params_raw)
-    model_raw.fit(np.row_stack([X_train_raw, X_val_raw]), np.concatenate([y_train_raw, y_val_raw]))
+    #model_raw = XGBClassifier(**params_raw)
+    model_raw = XGBClassifier(use_label_encoder=False, eval_metric='logloss')
+    model_raw.fit(X_train_raw, y_train_raw)
+    #model_raw.fit(np.row_stack([X_train_raw, X_val_raw]), np.concatenate([y_train_raw, y_val_raw]))
+    
     y_pred_raw = model_raw.predict(X_test_raw)
     y_pred_proba_raw = model_raw.predict_proba(X_test_raw)[:, 1]
 

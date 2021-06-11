@@ -22,20 +22,23 @@ def main():
 
     dataset_raw = read_raw_dataset()
 
-    X_train_raw, X_val_raw, X_test_raw, y_train_raw, y_val_raw, y_test_raw = split_train_test(dataset_raw)
+    X_train_raw, X_test_raw, y_train_raw, y_test_raw = split_train_test(dataset_raw)
 
-    params_raw = evaluate_hyperparameter(pipeline, X_train_raw, X_val_raw, y_train_raw, y_val_raw)
+    #params_raw = evaluate_hyperparameter(pipeline, X_train_raw, X_val_raw, y_train_raw, y_val_raw)
 
-    model_raw = SVC(probability=True, **params_raw)
-    model_raw.fit(np.row_stack([X_train_raw, X_val_raw]), np.concatenate([y_train_raw, y_val_raw]))
+    #model_raw = SVC(probability=True, **params_raw)
+    model_raw = pipeline['classifier'].set_params()
+    model_raw.fit(X_train_raw, y_train_raw)
+    #model_raw.fit(np.row_stack([X_train_raw, X_val_raw]), np.concatenate([y_train_raw, y_val_raw]))
+    
     y_pred_raw = model_raw.predict(X_test_raw)
     y_pred_proba_raw = model_raw.predict_proba(X_test_raw)[:, 1]
 
     print('\nAccuracy achieved with the test set: ', accuracy_score(y_test_raw, y_pred_raw))
     print('Precision achieved with the test set: ', precision_score(y_test_raw, y_pred_raw))
-    print('Recall achieved with the test set: ', round(recall_score(y_test_raw, y_pred_raw), 2))
-    print('F1 Score achieved with the test set: ', round(f1_score(y_test_raw, y_pred_raw), 2))
-    plot_roc_curve(y_test_raw, y_pred_proba_raw)
+    print('Recall achieved with the test set: ', recall_score(y_test_raw, y_pred_raw))
+    print('F1 Score achieved with the test set: ', f1_score(y_test_raw, y_pred_raw))
+    #plot_roc_curve(y_test_raw, y_pred_proba_raw)
 
 
 if __name__ == "__main__":

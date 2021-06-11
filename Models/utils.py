@@ -34,9 +34,9 @@ def split_train_test(data):
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, shuffle=False)
 
     # División del set de entrenamiento en entrenamiento y validación
-    X_train, X_val, y_train, y_val = train_test_split(X_train, y_train, test_size=0.2, shuffle=False)
+    #X_train, X_val, y_train, y_val = train_test_split(X_train, y_train, test_size=0.2, shuffle=False)
 
-    return X_train, X_val, X_test, y_train, y_val, y_test
+    return X_train, X_test, y_train, y_test #X_val,y_val
 
 
 def plot_roc_curve(y_val, y_pred):

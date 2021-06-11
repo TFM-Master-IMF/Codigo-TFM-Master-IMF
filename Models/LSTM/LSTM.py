@@ -1,12 +1,12 @@
 import numpy as np
 import tensorflow as tf
 import matplotlib.pyplot as plt
-
 from os.path import dirname, abspath
+from keras import backend as K
+from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score
 import sys
 sys.path.insert(0, dirname(dirname(abspath(__file__))))
-
-from utils import read_data, plot_roc_curve
+from utils import read_data, read_raw_dataset, read_log_dataset, plot_roc_curve 
 
 def data_preparation_lstm(dataset, dependent_variable, look_back=1):
     train_size = int(len(dataset) * 0.8)
@@ -44,13 +44,30 @@ class LSTM():
         self.y_train = y_train
         self.y_test = y_test
         self.LAYERS = [8, 8, 8, 1]                # number of units in hidden and output layers
-        self.EPOCH = 300                          # number of epochs
+        self.EPOCH = 100                          # number of epochs
         self.LR = 5e-2                            # learning rate of the gradient descent
         self.LAMBD = 3e-2                         # lambda in L2 regularization
         self.DP = 0.0                             # dropout rate
         self.RDP = 0.0                            # recurrent dropout rate             
         self.model = None
     
+    def recall_m(self, y_true, y_pred):
+        true_positives = K.sum(K.round(K.clip(y_true * y_pred, 0, 1)))
+        possible_positives = K.sum(K.round(K.clip(y_true, 0, 1)))
+        recall = true_positives / (possible_positives + K.epsilon())
+        return recall
+
+    def precision_m(self, y_true, y_pred):
+        true_positives = K.sum(K.round(K.clip(y_true * y_pred, 0, 1)))
+        predicted_positives = K.sum(K.round(K.clip(y_pred, 0, 1)))
+        precision = true_positives / (predicted_positives + K.epsilon())
+        return precision
+
+    def f1_m(self, y_true, y_pred):
+        precision = self.precision_m(y_true, y_pred)
+        recall = self.recall_m(y_true, y_pred)
+        return 2*((precision*recall)/(precision+recall+K.epsilon()))
+        
     def build_model(self):
         # Build the Model
         self.model = tf.keras.Sequential()
@@ -85,9 +102,9 @@ class LSTM():
 
         # Compile the model with Adam optimizer
         self.model.compile(loss='binary_crossentropy',
-                    metrics=['accuracy'],
-                    optimizer=tf.keras.optimizers.Adam(lr=self.LR))
-        print(self.model.summary())
+                    metrics=['accuracy', self.f1_m, self.precision_m, self.recall_m],
+                    optimizer=tf.keras.optimizers.Adam(learning_rate=self.LR))
+        #print(self.model.summary())
 
     def fitting_model(self):
         # Defining a learning rate decay method
@@ -106,7 +123,7 @@ class LSTM():
                         batch_size= self.X_train.shape[0],
                         validation_split=0.2,
                         shuffle=False,
-                        verbose=2,
+                        verbose=0,
                         callbacks = [lr_decay, early_stop])
 
         # Plotting validation and training loss curves
@@ -117,24 +134,44 @@ class LSTM():
 
     def evaluate_model(self):
         # Evaluate the model:
-        test_acc = self.model.evaluate(self.X_test, self.y_test,
-                                            batch_size=self.X_test.shape[0], verbose=0)[1]
+        test_evaluation = self.model.evaluate(self.X_test, self.y_test,
+                                            batch_size=self.X_test.shape[0], verbose=0, return_dict=True)#[1]
         y_pred_proba = self.model.predict(self.X_test)
-        print(f'test accuracy = {round(test_acc * 100, 4)}%')
-        print(f'test error = {round((1 - test_acc) *  self.X_test.shape[0])} out of  {self.X_test.shape[0]} examples')
+        #print(f'test error = {round((1 - test_evaluation) *  self.X_test.shape[0])} out of  {self.X_test.shape[0]} examples')
+        print('\nAccuracy achieved with the test set: ', test_evaluation['accuracy'])
+        print('Precision achieved with the test set: ', test_evaluation['precision_m'])
+        print('Recall achieved with the test set: ', test_evaluation['recall_m'])
+        print('F1 score achieved with the test set: ', test_evaluation['f1_m'])
         plot_roc_curve(self.y_test, y_pred_proba)
 
 def main():
-    np.random.seed(1)
-    tf.random.set_seed(1)
+    np.random.seed(0)
+    tf.random.set_seed(0)
     
-    dataset = read_data()
-    X_train, X_test, y_train, y_test = data_preparation_lstm(dataset, 'Bitcoin sign change')
+    dataset_full = read_data()
+    X_train, X_test, y_train, y_test = data_preparation_lstm(dataset_full, 'Bitcoin sign change')
 
-    LSTM_classifier = LSTM(X_train, X_test, y_train, y_test)
-    LSTM_classifier.build_model()
-    LSTM_classifier.fitting_model()
-    LSTM_classifier.evaluate_model()
+    LSTM_classifier_full = LSTM(X_train, X_test, y_train, y_test)
+    LSTM_classifier_full.build_model()
+    LSTM_classifier_full.fitting_model()
+    LSTM_classifier_full.evaluate_model()
+
+    dataset_lag = read_log_dataset()
+    X_train_lag, X_test_lag, y_train_lag, y_test_lag = data_preparation_lstm(dataset_lag, 'Bitcoin sign change')
+
+    LSTM_classifier_lag = LSTM(X_train_lag, X_test_lag, y_train_lag, y_test_lag)
+    LSTM_classifier_lag.build_model()
+    LSTM_classifier_lag.fitting_model()
+    LSTM_classifier_lag.evaluate_model()
+
+    dataset_raw = read_raw_dataset()
+    X_train_raw, X_test_raw, y_train_raw, y_test_raw = data_preparation_lstm(dataset_raw, 'Bitcoin sign change')
+
+    LSTM_classifier_raw = LSTM(X_train_raw, X_test_raw, y_train_raw, y_test_raw)
+    LSTM_classifier_raw.build_model()
+    LSTM_classifier_raw.fitting_model()
+    LSTM_classifier_raw.evaluate_model()
+
 
 if __name__ == "__main__":
     main()
