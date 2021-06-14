@@ -58,8 +58,8 @@ SPACE = {
     ],
     'LinearDiscriminantAnalysis': [
         Categorical(['lsqr', 'eigen'], name='solver'),
-        Real(0, 1, name='shrinkage')
-]
+        Real(0, 1, name='shrinkage'),
+    ]
 }
 
 
@@ -92,8 +92,8 @@ def evaluate_hyperparameter(model, X_train, X_val, y_train, y_val):
         os.makedirs(directory)
 
     params = dict(zip([p.name for p in filter_space], results.x))
-    old_data = load(os.path.join(os.getcwd(), directory, result_file_name))
-    if old_data.fun < results.fun:
+    previous_result = os.path.join(os.getcwd(), directory, result_file_name)
+    if not os.path.isfile(previous_result) or load(previous_result).fun < results.fun:
         with open(os.path.join(directory, result_file_name), 'wb') as file:
             dump(results, file, store_objective=False)
             with open(os.path.join(directory, best_params_file_name), 'wb') as params_file:

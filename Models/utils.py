@@ -39,9 +39,9 @@ def split_train_test(data):
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, shuffle=False)
 
     # División del set de entrenamiento en entrenamiento y validación
-    #X_train, X_val, y_train, y_val = train_test_split(X_train, y_train, test_size=0.2, shuffle=False)
+    # X_train, X_val, y_train, y_val = train_test_split(X_train, y_train, test_size=0.2, shuffle=False)
 
-    return X_train, X_test, y_train, y_test #X_val,y_val
+    return X_train, X_test, y_train, y_test  # X_val,y_val
 
 
 def plot_roc_curve(y_val, y_pred):
@@ -54,6 +54,24 @@ def plot_roc_curve(y_val, y_pred):
     ax.set_ylabel("False positive rate [%]")
     ax.set_xlabel("True positive rate [%]")
     ax.plot([0, 1], [0, 1], linestyle="--")
+    plt.show()
+
+
+def plot_features_importance(dataset, model):
+    X = dataset.drop("Bitcoin sign change", axis=1)
+
+    importance = pd.DataFrame({
+        "VARIABLE": X.columns,
+        "IMPORTANCE": model.feature_importances_ if hasattr(model, 'feature_importances_') else model.coef_
+    }).sort_values("IMPORTANCE", ascending=False)
+
+    print("\n ########## %s variables importance ###########" % type(model).__name__)
+    for index, row in importance.iterrows():
+        print('Feature: %s, Score: %.5f' % (row["VARIABLE"], row["IMPORTANCE"]))
+
+    fig, ax = plt.subplots(figsize=(10, 6))
+    ax.set_title("Feature importances")
+    ax.barh(importance["VARIABLE"], importance["IMPORTANCE"])
     plt.show()
 
 
