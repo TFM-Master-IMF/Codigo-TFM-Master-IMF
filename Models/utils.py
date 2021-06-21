@@ -2,7 +2,10 @@ import pandas as pd
 from os.path import dirname, abspath
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import roc_auc_score, roc_curve
+from sklearn.pipeline import Pipeline
 import matplotlib.pyplot as plt
+import pickle
+import os
 
 
 def read_data():
@@ -57,7 +60,7 @@ def plot_roc_curve(y_val, y_pred):
     plt.show()
 
 
-def plot_features_importance(dataset, model):
+def get_features_importance(dataset, model):
     X = dataset.drop("Bitcoin sign change", axis=1)
 
     importance = pd.DataFrame({
@@ -65,7 +68,12 @@ def plot_features_importance(dataset, model):
         "IMPORTANCE": model.feature_importances_ if hasattr(model, 'feature_importances_') else model.coef_
     }).sort_values("IMPORTANCE", ascending=False)
 
-    print("\n ########## %s variables importance ###########" % type(model).__name__)
+    return importance
+
+
+def plot_features_importance(importance):
+
+    print("\n ########## %s variables importance ###########") #% type(model).__name__
     for index, row in importance.iterrows():
         print('Feature: %s, Score: %.5f' % (row["VARIABLE"], row["IMPORTANCE"]))
 
@@ -74,6 +82,27 @@ def plot_features_importance(dataset, model):
     ax.barh(importance["VARIABLE"], importance["IMPORTANCE"])
     plt.show()
 
+
+def save_model(model):
+    classifier = model["classifier"] if type(model) == Pipeline else model
+
+    # save the results
+    path = dirname(abspath(__file__))
+    directory = '/artifacts'
+    result_file_name = '%s_results.pkl' % type(classifier).__name__
+
+    if not os.path.exists(directory):
+        os.makedirs(directory)
+
+    pickle.dump(classifier, open(os.path.join(path + directory, result_file_name), 'wb'))
+
+
+def load_model(name):
+    path = dirname(abspath(__file__))
+    directory = '/artifacts'
+
+    loaded_model = pickle.load(open(os.path.join(path + directory, name), 'rb'))
+    return loaded_model
 
 if __name__ == "__main__":
     data = read_data()

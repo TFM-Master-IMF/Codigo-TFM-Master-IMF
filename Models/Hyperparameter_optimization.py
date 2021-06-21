@@ -5,6 +5,7 @@ from skopt.utils import use_named_args
 from skopt import gp_minimize, forest_minimize
 from sklearn.metrics import roc_auc_score
 from sklearn.pipeline import Pipeline
+from os.path import dirname, abspath
 import os
 import pickle
 
@@ -84,20 +85,21 @@ def evaluate_hyperparameter(model, X_train, X_val, y_train, y_val):
     results = forest_minimize(evaluate_model, filter_space, callback=DeltaXStopper(1e-2))
 
     # save the results
-    directory = '../artifacts'
+    path = dirname(abspath(__file__))
+    directory = '/artifacts'
     result_file_name = '%s_results.pkl' % type(classifier).__name__
     best_params_file_name = '%s_best_params.txt' % type(classifier).__name__
 
-    if not os.path.exists(directory):
-        os.makedirs(directory)
+    if not os.path.exists(path + directory):
+        os.makedirs(path + directory)
 
     params = dict(zip([p.name for p in filter_space], results.x))
-    previous_result = os.path.join(os.getcwd(), directory, result_file_name)
-    if not os.path.isfile(previous_result) or load(previous_result).fun < results.fun:
-        with open(os.path.join(directory, result_file_name), 'wb') as file:
-            dump(results, file, store_objective=False)
-            with open(os.path.join(directory, best_params_file_name), 'wb') as params_file:
-                pickle.dump(params, params_file)
+    #previous_result = os.path.join(os.getcwd(), directory, result_file_name)
+    #if not os.path.isfile(previous_result) or load(previous_result).fun < results.fun:
+    with open(os.path.join(path + directory, result_file_name), 'wb') as file:
+        dump(results, file, store_objective=False)
+        with open(os.path.join(path + directory, best_params_file_name), 'wb') as params_file:
+            pickle.dump(params, params_file)
 
     # summarizing finding:
     print('Accuracy achieved with the validation set: %.3f' % results.fun)

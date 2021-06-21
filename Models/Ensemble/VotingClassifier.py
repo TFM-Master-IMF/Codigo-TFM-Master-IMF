@@ -28,10 +28,11 @@ def main(load_dataset):
     model.fit(X_train, y_train)
     y_pred = model.predict(X_test)
     # y_pred_proba = model.predict_proba(X_test)[:, 1]
-    print('\nAccuracy achieved with the test set: ', accuracy_score(y_test, y_pred))
-    print('Precision achieved with the test set: ', precision_score(y_test, y_pred))
-    print('Recall achieved with the test set: ', round(recall_score(y_test, y_pred), 2))
-    print('F1 Score achieved with the test set: ', round(f1_score(y_test, y_pred), 2))
+    
+    print('\nAccuracy achieved with the test set: ', round(accuracy_score(y_test, y_pred), 4))
+    print('Precision achieved with the test set: ', round(precision_score(y_test, y_pred), 4))
+    print('Recall achieved with the test set: ', round(recall_score(y_test, y_pred), 4))
+    print('F1 Score achieved with the test set: ', round(f1_score(y_test, y_pred), 4))
 
     # plot_features_importance(dataset, model)
 
